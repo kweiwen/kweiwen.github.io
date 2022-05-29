@@ -278,33 +278,10 @@ class BasicWorld {
 
 let APP = null;
 
-window.addEventListener('DOMContentLoaded', () => {
-  APP = new BasicWorld();
-  // let gui = new dat.GUI({width:300});
-  // let opts = new option();
-  // let RectLightFolfer = gui.addFolder("RectLight");
-  // let rectLightWidthSignal = RectLightFolfer.add(opts, 'rectLightWidth', 10, 100);
-  // let rectLightHeightSignal = RectLightFolfer.add(opts, 'rectLightHeight', 10, 100);
-  // let rectLightIntensitySignal = RectLightFolfer.add(opts, 'rectLightIntensity', 0, 1);
-
-  // rectLightIntensitySignal.onChange(function(value) {
-  //   APP.rectLight1.intensity = value;
-  //   APP.rectLight2.intensity = value;
-  //   APP.rectLightHelper1.update();
-  //   APP.rectLightHelper2.update();
-  // });
-
-  // rectLightWidthSignal.onChange(function(value) {
-  //   APP.rectLight1.width = value;
-  //   APP.rectLight2.width = value;
-  //   APP.rectLightHelper1.update();
-  //   APP.rectLightHelper2.update();
-  // });
-
-  // rectLightHeightSignal.onChange(function(value) {
-  //   APP.rectLight1.height = value;
-  //   APP.rectLight2.height = value;
-  //   APP.rectLightHelper1.update();
-  //   APP.rectLightHelper2.update();
-  // });
+window.addEventListener('load', () => {
+  console.log("finished loading");
+  document.addEventListener("click", function( event ) {
+    APP = new BasicWorld();
+    console.log("YES");
+  }, {once : true});
 });
