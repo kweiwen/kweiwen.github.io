@@ -1,33 +1,25 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <title>kweiwen</title>
+    <title>null</title>
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-    <link rel="apple-touch-icon" sizes="180x180" href="./resources/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="./resources/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="./resources/favicon-16x16.png">
-    <link rel="manifest" href="./resources/site.webmanifest">
-    <link rel="mask-icon" href="./resources/safari-pinned-tab.svg" color="#5bbad5">
-    <meta name="msapplication-TileColor" content="#da532c">
-    <meta name="theme-color" content="#ffffff">
-
-
-
-
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <script type="text/javascript" src="dat.gui.min.js"></script>
+    <!-- <script src="./dist/jquery-3.6.0.js"></script> -->
+    <!-- <script src="./dist/jquery.knob.min.js"></script> -->
 </head>
 
 <!-- CSS -->
 <style>
-    @font-face {
+    @font-face 
+    {
         font-family: 'CG-pixel-3x5-mono';
-        src: url(CG-pixel-3x5-mono.woff) format('woff');
+        src: url(./CG-pixel-3x5-mono.woff) format('woff');
     }
 
-    .noselect {
+    .noselect 
+    {
         -webkit-touch-callout: none;    /* iOS Safari */
         -webkit-user-select: none;      /* Safari */
         -khtml-user-select: none;       /* Konqueror HTML */
@@ -35,35 +27,47 @@
         -ms-user-select: none;          /* Internet Explorer/Edge */
         user-select: none;              /* Non-prefixed version, currently supported by Chrome and Opera */
     }
-
-    html, body {
+    
+    html, body 
+    {
         width: 100%;
         height: 100%;
+        margin: 0;
+        padding: 0;
         background-color: black;
     }
-
-    body {
+    
+    body 
+    {
+        position: absolute;
+        overscroll-behavior: none;
         display: flex;
-        align-items: left;
         flex-direction: column;
         font-family: 'CG-pixel-3x5-mono';
+        color: white;
     }
 
-    span {
-        font-size: 4vw;
-        color: white;
-		line-height: 5vw;
-    }
+
+    /* body {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      background: #000000;
+      margin: 0;
+      padding: 0;
+      overscroll-behavior: none;
+    } */
 
 </style>
 
 <!-- HTML -->
 <body>
-	<span>UNDER CONSTRUCTION...</span>
-	<span>STAY TUNE! AND SEE YOU SOON.</span>
+  <!-- JavaScript -->
+  <script type="module">
+    import three from 'https://cdn.skypack.dev/three';
+  </script>
+  <script type="module" src="./index.js" >
+  </script>
 </body>
-
-<!-- JavaScript -->
-<script src="index.js"></script>
 
 </html>
