@@ -245,6 +245,7 @@ class BasicWorld {
     sound.setNodeSource(level);
     sound.setRefDistance(10);
     sound.setDirectionalCone(180, 230, 0.1);
+    sound.setVolume(0.5);
     // const helper = new PositionalAudioHelper(sound, 25);
     // sound.add(helper);
     object.add(sound);
