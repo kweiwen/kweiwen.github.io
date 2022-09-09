@@ -1,5 +1,3 @@
-function comparator(input_data_1, input_data_2) { return (input_data_1 > input_data_2) ? 1 : (input_data_1 > input_data_2) ? -1 : 0; }
-
 function fft(re, im) 
 {
   var N = re.length;
@@ -75,6 +73,7 @@ function complex_roll(array, k)
   return result;
 }
 
+
 function sigmoid(input_data, gain)
 {
   input_data = input_data * gain;
@@ -95,211 +94,6 @@ function clip(num, min, max)
          : num >= max 
          ? max 
          : num
-}
-
-function vca(voltage) 
-{ 
-  return Math.pow(10, -1.5 * voltage); 
-}
-
-class lorenz_attractor
-{
-  constructor(options)
-  {
-    this.sigma = 10;
-    this.rho = 13.927;
-    this.beta = 8/3;
-    this.time = 0.01;
-    
-    this.x = Math.random();
-    this.y = Math.random();
-    this.z = Math.random();
-
-    this.flag = 0;
-  }
-  
-  lorenz_attr(x, y, z)
-  {
-    let x_dot = this.sigma * (y - x);
-    let y_dot = this.rho * x - y - x * z;
-    let z_dot = x * y - this.beta * z;
-    return [x_dot, y_dot, z_dot];
-  }
-  
-  process()
-  {
-    let result = this.lorenz_attr(this.x, this.y, this.z);
-    let x_dot = result[0];
-    let y_dot = result[1];
-    let z_dot = result[2];
-    this.x = this.x + (x_dot * this.time);
-    this.y = this.y + (y_dot * this.time);
-    this.z = this.z + (z_dot * this.time);
-  }
-
-  sample(clock)
-  {
-    if(clock == 1 & this.flag == 0)
-    {
-      this.process();
-      this.flag = 1;
-    }
-    else if(clock == 0 & this.flag == 1)
-    {
-      this.flag = 0;
-    }
-  }
-}
-
-class shift_register
-{
-  constructor(options)
-  {
-    this.flag = 0;
-    this.buffer = new Array(8).fill(-1);
-    this.index = 0;
-    this.mask = 7;
-  }
-
-  sample(clock, input_data)
-  {
-    if(clock > 0 & this.flag == 0)
-    {
-      this.buffer[this.index] = input_data
-      this.index = (this.index + 1) & this.mask
-      this.flag = 1
-    }
-    else if(clock <= 0 & this.flag == 1)
-    {
-      this.flag = 0
-    }
-  }
-  
-  xor(p1, q8)
-  {
-    // P2(CLK)
-    // Q8       L   H   L   H
-    // P1       L   L   H   H
-    // Output  -1   1   1  -1
-
-    if(q8 < 0)
-    {
-      return p1;
-    }
-    else if(q8 > 0)
-    {
-      return -p1;
-    }
-    else
-    {
-      return 0;
-    }
-  }
-}
-
-class svf
-{
-  constructor(options, cutoffFrequency, resonance)
-  {
-    this.sampleRate = sampleRate;
-    this._invSampleRate = 1 / this.sampleRate;
-    this._cutoffFrequency = cutoffFrequency;
-    this._resonance = resonance;
-    this.update();
-    this.reset();
-  }
-
-  update()
-  {
-    this.g  = (Math.PI * this._cutoffFrequency * this._invSampleRate);
-    this.R2 = (1.0 / this._resonance);
-    this.h  = (1.0 / (1.0 + this.R2 * this.g + this.g * this.g));
-  }
-
-  reset()
-  {
-    this.s1 = 0;
-    this.s2 = 0;
-    
-    this.HP = 0;
-    this.BP = 0;
-    this.LP = 0;
-  }
-
-  set cutoffFrequency(input_data)
-  {
-    this._cutoffFrequency = input_data;
-    this.update();
-  }
-
-  get cutoffFrequency()
-  {
-    return this._cutoffFrequency;
-  }
-
-  set resonance(input_data)
-  {
-    this._resonance = input_data;
-    this.update();
-  }
-
-  get resonance()
-  {
-    return this._resonance;
-  }
-
-  process(sample)
-  {
-    this.HP = (sample - this.s1 * this.R2 - this.s1 * this.g - this.s2) * this.h;
-    
-    this.BP = this.HP * this.g + this.s1;
-    this.s1 = this.HP * this.g + this.BP;
-    
-    this.LP = this.BP * this.g + this.s2;
-    this.s2 = this.BP * this.g + this.LP;
-    
-    return {"HP": this.HP, "BP": this.BP, "LP": this.LP}
-  }
-}
-
-class functionGenerator
-{
-  constructor(options)
-  {
-    this.sampleRate = sampleRate;
-    this._invSampleRate = 1 / this.sampleRate;
-    this._invPi = 1 / Math.PI;
-		this._degree = 0;
-		this._cycle = 0;
-    this._pitch = 0;
-  }
-
-  flushSamples()
-  {
-    this._degree = 0;
-		this._cycle = 0;
-  }
-
-  Generate()
-  {
-    this._cycle = this._cycle + this._pitch * this._invSampleRate;
-    this._cycle = this._cycle - Math.floor(this._cycle);
-    this._degree = this._cycle * Math.PI * 2;
-
-    let triangle = 2 * this._invPi * Math.asin(Math.sin(this._degree))
-    let square = (this._degree < 0.5) ? 1 : (this._degree > 0.5) ? -1 : 0;
-
-    return {"square": square, "triangle": triangle};
-  }
-
-  GenerateSine()
-  {
-    this._cycle = this._cycle + this._pitch * this._invSampleRate;
-    this._cycle = this._cycle - Math.floor(this._cycle);
-    this._degree = this._cycle * Math.PI * 2;
-
-    return Math.sin(this._degree);
-  }
 }
 
 class circularBuffer
@@ -340,31 +134,6 @@ class circularBuffer
     let index = this._writeIndex - delayInSamples;
     index = index & this._wrapMask;
     return this._buffer[index];
-  }
-
-  readBufferReverse(delayInSamples)
-  {
-    let index = this._writeIndex + delayInSamples;
-    index = index & this._wrapMask;
-    return this._buffer[index];
-  }
-
-  readBufferLinear(delayInSamples)
-  {
-    let y1 = this.readBuffer(parseInt(delayInSamples));
-    let y2 = this.readBuffer(parseInt(delayInSamples) + 1);
-    let fraction = delayInSamples - parseInt(delayInSamples);
-    if (fraction >= 1.0) return y2;
-    return fraction * y2 + (1 - fraction) * y1;
-  }
-
-  readBufferLinearReverse(delayInSamples)
-  {
-    let y1 = this.readBufferReverse(parseInt(delayInSamples));
-    let y2 = this.readBufferReverse(parseInt(delayInSamples) + 1);
-    let fraction = delayInSamples - parseInt(delayInSamples);
-    if (fraction >= 1.0) return y2;
-    return fraction * y2 + (1 - fraction) * y1;
   }
 }
 
@@ -835,7 +604,7 @@ class DripSourceProcessor extends AudioWorkletProcessor
         this._vcf3333[index]._a1 = this._biquad.a1;
         this._vcf3333[index]._a2 = this._biquad.a2;
         let temp3 = this._vcf3333[index].process_sample(clip(temp2 * temp2, 0, 0.9));
-        channel[i] = temp3;
+        channel[i] = temp3 * 0.0025;
       }
     })
     return true;
@@ -1042,14 +811,14 @@ class DattorroReverbProcessor extends AudioWorkletProcessor
 			["bandwidth",       0.50,   0,  1,              "k-rate"],	
 			["inputDiffusion1", 0.80,   0,  1,              "k-rate"],	
 			["inputDiffusion2", 0.80,   0,  1,              "k-rate"],	
-			["decay",           0.85,   0,  1,              "k-rate"],	
+			["decay",           0.65,   0,  1,              "k-rate"],	
 			["decayDiffusion1", 0.10,   0,  0.999999,       "k-rate"],	
 			["decayDiffusion2", 0.10,   0,  0.999999,       "k-rate"],	
 			["damping",         0.32,   0,  1,              "k-rate"],	
 			["excursionRate",   8.00,   0,  10,             "k-rate"],	
 			["excursionDepth",  1.00,   0,  10,             "k-rate"],	
-			["wet",             0.42,   0,  1,              "k-rate"],	
-			["dry",             0.58,   0,  1,              "k-rate"],
+			["wet",             0.15,   0,  1,              "k-rate"],	
+			["dry",             0.85,   0,  1,              "k-rate"],
       ["mono",            0,      0,  1,              "k-rate"],
 		].map(x => new Object({
 			name:           x[0],
@@ -1261,153 +1030,6 @@ class DattorroReverbProcessor extends AudioWorkletProcessor
 
 registerProcessor('dattorro-reverb-processor', DattorroReverbProcessor);
 
-class PanKahProcessor extends AudioWorkletProcessor 
-{
-  static get parameterDescriptors() 
-	{
-		return [
-			["MOD_A",       0.75, 0.00, 1.00, "k-rate"],	
-			["MOD_B",       0.87, 0.00, 1.00, "k-rate"],	
-			["PITCH_A",     0.55, 0.00, 1.00, "k-rate"],	
-			["PITCH_B",     0.95, 0.00, 1.00, "k-rate"],	
-			["FREQ_F",      0.89, 0.00, 1.00, "k-rate"],	
-			["RES_F",       0.75, 0.00, 1.00, "k-rate"],	
-			["CHAOS_A",     0.96, 0.00, 1.00, "k-rate"],	
-			["CHAOS_B",     0.31, 0.00, 1.00, "k-rate"],	
-			["CHAOS_F",     0.77, 0.00, 1.00, "k-rate"],	
-			["MODE_F",      1,    1,    3,    "k-rate"],	
-			["MODE_OUT",    5,    1,    5,    "k-rate"],	
-			["VOLUME",      0.10, 0.00, 1.00, "k-rate"],	
-      
-		].map(x => new Object({
-			name:           x[0],
-			defaultValue:   x[1],
-			minValue:       x[2],
-			maxValue:       x[3],
-			automationRate: x[4]
-		}));
-	}
-
-  constructor(options)
-  {
-    super();
-    this.sampleRate = sampleRate;
-    this.osc_a = new functionGenerator(options);
-    this.osc_b = new functionGenerator(options);
-
-    this._biquad = new coefficient({filterType: "high-pass2",
-                                    frequencyCut: 150,
-                                    sampleRate: this.sampleRate,
-                                    res: 0.707,
-                                    slope: 0,
-                                    magnitude: 0});
-
-    this._hp = new biquad({ b0: this._biquad.b0, 
-                            b1: this._biquad.b1, 
-                            b2: this._biquad.b2, 
-                            a1: this._biquad.a1, 
-                            a2: this._biquad.a2});      
-
-    this.svf = new svf(options, 1200, 1.414);
-
-    this.osc_a._cycle = Math.random() / 2;
-    this.osc_b._cycle = Math.random() / 2;
-    this._invSampleRate = 1 / this.sampleRate;
-
-    this._temp_a = null;
-    this._temp_b = null;
-
-    this._chaos = new shift_register();
-    this._xor = 1; 
-    this._clock = 1;
-
-    this._summing_a = 0;
-    this._summing_b = 0;
-    this._summing_f = 0;
-
-    this._out = null;
-  }
-
-  process (inputs, outputs, parameters) 
-  {
-    const output = outputs[0];        
-    output.forEach((channel) => 
-    {
-      let tolerance = Math.random() / 10000;
-      let key1 = parameters.MODE_OUT[0];
-      let key2 = parameters.MODE_F[0];
-      for (let i = 0; i < channel.length; i++) 
-      {
-        let chaos_cv  = (this._chaos.buffer[5] * 0.5) + (this._chaos.buffer[6] * 0.25) + (this._chaos.buffer[7] * 0.125);
-        let a_cv      = clip(this._summing_a, 0, 9);
-        let b_cv      = clip(this._summing_b, 0, 9);
-        let filter_cv = clip(this._summing_f, 0, 9);
-        this.osc_a._pitch = (vca(a_cv)+tolerance) * 5000.0;
-        this.osc_b._pitch = (vca(b_cv)+tolerance) * 5000.0;
-        this.svf.cutoffFrequency = (filter_cv+tolerance) * 4800.0;
-        this.svf.resonance = Math.pow(4, parameters.RES_F[0]+tolerance);
-        this._temp_a = this.osc_a.Generate();
-        this._temp_b = this.osc_b.Generate();
-        
-        this._xor = this._chaos.xor(this._temp_a.square, this._chaos.buffer[7]);
-        this._chaos.sample(this._temp_b.square, this._xor);
-        this._summing_a = (1 - parameters.PITCH_A[0]) * 3.0 - (parameters.CHAOS_A[0] * chaos_cv * 1.8) - (this._temp_b.triangle * parameters.MOD_A[0] * 1.8);
-        this._summing_b = (1 - parameters.PITCH_B[0]) * 3.0 - (parameters.CHAOS_B[0] * chaos_cv * 1.8) - (this._temp_a.triangle * parameters.MOD_B[0] * 1.8);
-
-        this._summing_f = (parameters.FREQ_F[0]) * 1.8 - (parameters.CHAOS_F[0] * chaos_cv * 1.8);
-        let pwm = comparator(this._temp_a.triangle, this._temp_b.triangle);
-
-        switch (key1) 
-        {
-          case 1:
-            this.out = this._temp_a.triangle;
-            break;
-          case 2:
-            this.out = this._temp_b.triangle;
-            break;
-          
-          case 3:
-            this.out = this._temp_a.square;
-            break;
-          
-          case 4:
-            this.out = this._temp_b.square;
-            break;
-          
-          case 5:
-            this.out = pwm;
-            break;
-        
-          default:
-            this.out = pwm;
-            break;
-        }
-
-        switch (key2) {
-          case 1:
-            channel[i] = this._hp.process_sample(this.svf.process(this.out).LP * parameters.VOLUME[0]);
-            break;
-          
-          case 2:
-            channel[i] = this._hp.process_sample(this.svf.process(this.out).BP * parameters.VOLUME[0]);
-            break;
-
-          case 3:
-            channel[i] = this._hp.process_sample(this.svf.process(this.out).HP * parameters.VOLUME[0]);
-            break;
-        
-          default:
-            channel[i] = this._hp.process_sample(this.svf.process(this.out).LP * parameters.VOLUME[0]);
-            break;
-        }
-      }
-    })
-    return true;
-  }
-}
-
-registerProcessor('pan-kah-processor', PanKahProcessor);
-
 class LevelMeterProcessor extends AudioWorkletProcessor
 {
 
@@ -1442,7 +1064,7 @@ class LevelMeterProcessor extends AudioWorkletProcessor
         }
       }
     }
-    this.port.postMessage({"energy": (energy * energy) / 256, "peak": peak});
+    this.port.postMessage({"energy": (energy * energy) / 256, "peak": peak, "coefficient": this._biquad});
     return true;
   }
 }
@@ -1512,7 +1134,7 @@ class GrainularProcessor extends AudioWorkletProcessor
 
   constructor(options)
   {
-    super(options);
+    super();
     this.sampleRate = sampleRate;    
     this.fftSize = 1024;
     this.offset = this.fftSize - 128;
@@ -1551,6 +1173,7 @@ class GrainularProcessor extends AudioWorkletProcessor
       ["phaseshift",    0.0,   -1,    1,    "k-rate"],
       ["phasenull",     0,    0,    1,    "k-rate"],
       ["panning",       0.5,    0,    1,    "k-rate"],
+      ["mix",           0.5,    0,    1,    "k-rate"],
 		].map(x => new Object({
       name: x[0],
 			defaultValue: x[1],
@@ -1562,421 +1185,70 @@ class GrainularProcessor extends AudioWorkletProcessor
 
   process(inputs, outputs, parameters)
   {
-    if (inputs[0].length > 0)
+    let bandshift = parameters['bandshift'][0];
+    let randomness = parameters['randomness'][0];
+    let phaseshift =  parameters['phaseshift'][0];
+    let phasenull =  parameters['phasenull'][0];
+    let panning =  parameters['panning'][0];
+    let mix =  parameters['mix'][0];
+
+    for (let i = 0; i < 128; i++)
     {
-      let bandshift = parameters['bandshift'][0];
-      let randomness = parameters['randomness'][0];
-      let phaseshift =  parameters['phaseshift'][0];
-      let phasenull =  parameters['phasenull'][0];
-      let panning =  parameters['panning'][0];
-
-      for (let i = 0; i < 128; i++)
-      {
-        let blend = inputs[0][0][i] * panning + inputs[0][1][i] * (1 - panning);
-        this.xn[i] = blend;
-        this.inputBuffer.writeBuffer(blend);
-      }
-
-      // prepare vector for fft
-      this.Xn_imag.fill(0);
-      for (let i = 0; i < this.fftSize; i++)
-      {
-        this.Xn_real[i] = this.inputBuffer.readBuffer(this.fftSize - i);
-      }
-
-      // perform fft
-      fft(this.Xn_real, this.Xn_imag);
-      this.Xn_real = complex_roll(this.Xn_real, bandshift);
-      // this.Xn_imag = complex_roll(this.Xn_imag, bandshift);
-
-      // prepare mirrored random phase vector
-      this.randomTemp.forEach((value, index, array) =>
-      {
-        array[index] = (Math.random() * 2 * Math.PI - Math.PI);
-        // array[index] = gaussian() * Math.PI;
-      });
-      let flip = this.randomTemp.reverse().map(function(x) { return x * -1; });
-      let randomPhase = [0].concat(this.randomTemp).concat([0]).concat(flip);
-
-      // convert fft data into amplitude and angle
-      for (let i = 0; i < this.fftSize; i++)
-      {
-        let amplitude = Math.sqrt(this.Xn_real[i] * this.Xn_real[i] + this.Xn_imag[i] * this.Xn_imag[i]);
-        let angle = Math.atan2(this.Xn_imag[i], this.Xn_real[i]) * 360 / (2 * Math.PI);
-        angle = (angle + 180 * phaseshift) % 360;
-        let angle_hat = ((angle / 360) * 2 * Math.PI + randomPhase[i] * randomness) * (1 - phasenull);
-
-        let [real, imag] = polar2complex(amplitude, angle_hat);
-        this.x_synthesis_real[i] = real;
-        this.x_synthesis_imag[i] = imag;
-      }
-
-      // perform ifft
-      ifft(this.x_synthesis_real, this.x_synthesis_imag);
-
-      for (let i = 0; i < 128; i++) 
-      {
-        outputs[0][0][i] = this.x_synthesis_real[i + this.offset];
-      }
-      this.port.postMessage({"buffer1": inputs[0][0], "buffer2": inputs[0][1]});
+      let blend = inputs[0][0][i] * 0.5 + inputs[0][1][i] * 0.5;
+      this.xn[i] = blend;
+      this.inputBuffer.writeBuffer(blend);
     }
-    return true;      
+
+    // prepare vector for fft
+    this.Xn_imag.fill(0);
+    for (let i = 0; i < this.fftSize; i++)
+    {
+      this.Xn_real[i] = this.inputBuffer.readBuffer(this.fftSize - i);
+    }
+
+    // perform fft
+    fft(this.Xn_real, this.Xn_imag);
+
+    // apply magnitude roll
+    this.Xn_real = complex_roll(this.Xn_real, bandshift);
+
+    // prepare mirrored random phase vector
+    this.randomTemp.forEach((value, index, array) =>
+    {
+      array[index] = (Math.random() * 2 * Math.PI - Math.PI);
+      // array[index] = gaussian() * Math.PI;
+    });
+    let flip = this.randomTemp.reverse().map(function(x) { return x * -1; });
+    let randomPhase = [0].concat(this.randomTemp).concat([0]).concat(flip);
+
+    // convert fft data into amplitude and angle
+    for (let i = 0; i < this.fftSize; i++)
+    {
+      let amplitude = Math.sqrt(this.Xn_real[i] * this.Xn_real[i] + this.Xn_imag[i] * this.Xn_imag[i]);
+      let angle = Math.atan2(this.Xn_imag[i], this.Xn_real[i]) * 360 / (2 * Math.PI);
+      angle = (angle + 180 * phaseshift) % 360;
+      angle = angle * (1 - phasenull);
+      let angle_hat = ((angle / 360) * 2 * Math.PI + randomPhase[i] * randomness);
+
+      let [real, imag] = polar2complex(amplitude, angle_hat);
+      this.x_synthesis_real[i] = real;
+      this.x_synthesis_imag[i] = imag;
+    }
+
+    // perform ifft
+    ifft(this.x_synthesis_real, this.x_synthesis_imag);
+
+    for (let i = 0; i < 128; i++) 
+    {
+      outputs[0][0][i] = this.x_synthesis_real[i + this.offset] * mix + inputs[0][0][i] * (1 - mix);
+    }
+    this.port.postMessage({"buffer1": inputs[0][0], "buffer2": inputs[0][1]});
+    return true;
   }
 }
 
 registerProcessor('grainular-processor', GrainularProcessor);
 
-class FeedbackDelayNetworkProcessor extends AudioWorkletProcessor
-{
-  constructor(options)
-  {
-    super(options);
-    this.sampleRate = sampleRate;
 
-    this.wave1 = new functionGenerator();
-    this.wave2 = new functionGenerator();
-    this.wave3 = new functionGenerator();
-    this.wave4 = new functionGenerator();
 
-    this.wave1._cycle = 0;
-    this.wave2._cycle = 0.25;
-    this.wave3._cycle = 0.5;
-    this.wave4._cycle = 0.75;
 
-    this.wave1._pitch = 1;
-    this.wave2._pitch = 1;
-    this.wave3._pitch = 1;
-    this.wave4._pitch = 1;
-
-    this.cb1 = new circularBuffer();
-    this.cb2 = new circularBuffer();
-    this.cb3 = new circularBuffer();
-    this.cb4 = new circularBuffer();
-
-    this.cb1.createBuffer(4096);
-    this.cb2.createBuffer(4096);
-    this.cb3.createBuffer(4096);
-    this.cb4.createBuffer(4096);
-
-    this._coefficient = new coefficient(
-      {
-        filterType: "low-pass1",
-        frequencyCut: 150,
-        sampleRate: this.sampleRate,
-        res: 0,
-        slope: 0,
-        magnitude: 0
-      });
-
-    this._biquad1 = new biquad(
-      {
-        b0: this._coefficient.b0, 
-        b1: this._coefficient.b1, 
-        b2: this._coefficient.b2, 
-        a1: this._coefficient.a1, 
-        a2: this._coefficient.a2
-      });
-
-    this._biquad2 = new biquad(
-      {
-        b0: this._coefficient.b0, 
-        b1: this._coefficient.b1, 
-        b2: this._coefficient.b2, 
-        a1: this._coefficient.a1, 
-        a2: this._coefficient.a2
-      });
-
-    this._biquad3 = new biquad(
-      {
-        b0: this._coefficient.b0, 
-        b1: this._coefficient.b1, 
-        b2: this._coefficient.b2, 
-        a1: this._coefficient.a1, 
-        a2: this._coefficient.a2
-      });
-
-    this._biquad4 = new biquad(
-      {
-        b0: this._coefficient.b0, 
-        b1: this._coefficient.b1, 
-        b2: this._coefficient.b2, 
-        a1: this._coefficient.a1, 
-        a2: this._coefficient.a2
-      });
-
-  }
-
-  static get parameterDescriptors() 
-  {
-		return [
-      ["bypass",        0,      0,    1,    "k-rate"],
-      ["brightness",    1200,   150,  5000, "k-rate"],
-      ["damping",       0.5,    0,    1,    "k-rate"],
-      ["decay",         0.9,    0,    1,    "k-rate"],
-      ["size",          0.9,    0,    1,    "k-rate"],
-      ["frequency",     2,      0,    20,   "k-rate"],
-      ["depth",         63,     0,    127,  "k-rate"],
-      ["mix",           0.5,    0,    1,    "k-rate"],
-      ["freeze",        0,      0,    1,    "k-rate"],
-		].map(x => new Object({
-      name: x[0],
-			defaultValue: x[1],
-			minValue: x[2],
-			maxValue: x[3],
-			automationRate: x[4]
-		}));
-  } 
-
-  process(inputs, outputs, parameters)
-  {
-    if (inputs[0].length == 2)
-    {
-      let bypass      = parameters['bypass'][0];
-      let brightness  = parameters['brightness'][0];
-      let damping     = parameters['damping'][0];
-      let decay       = parameters['decay'][0];
-      let size        = parameters['size'][0];
-      let frequency   = parameters['frequency'][0];
-      let depth       = parameters['depth'][0];
-      let mix         = parameters['mix'][0];
-      let freeze      = parameters['freeze'][0];
-      if(freeze == 1)
-      {
-
-      }
-      if(bypass == 1) { mix = 0; }
-
-      this.wave1._pitch = frequency;
-      this.wave2._pitch = frequency;
-      this.wave3._pitch = frequency;
-      this.wave4._pitch = frequency;
-
-      this._coefficient.frequencyCut = brightness;
-      this._biquad1._a1 = this._coefficient.a1;
-      this._biquad1._a2 = this._coefficient.a2;
-      this._biquad1._b0 = this._coefficient.b0;
-      this._biquad1._b1 = this._coefficient.b1;
-      this._biquad1._b2 = this._coefficient.b2;
-
-      this._biquad2._a1 = this._coefficient.a1;
-      this._biquad2._a2 = this._coefficient.a2;
-      this._biquad2._b0 = this._coefficient.b0;
-      this._biquad2._b1 = this._coefficient.b1;
-      this._biquad2._b2 = this._coefficient.b2;
-
-      this._biquad3._a1 = this._coefficient.a1;
-      this._biquad3._a2 = this._coefficient.a2;
-      this._biquad3._b0 = this._coefficient.b0;
-      this._biquad3._b1 = this._coefficient.b1;
-      this._biquad3._b2 = this._coefficient.b2;
-
-      this._biquad4._a1 = this._coefficient.a1;
-      this._biquad4._a2 = this._coefficient.a2;
-      this._biquad4._b0 = this._coefficient.b0;
-      this._biquad4._b1 = this._coefficient.b1;
-      this._biquad4._b2 = this._coefficient.b2;
-
-      for (let i = 0; i < 128; i++)
-      {
-        let drySignal1 = inputs[0][0][i] * (1 - bypass);
-        let drySignal2 = inputs[0][1][i] * (1 - bypass);
-
-        let modulation1 = this.wave1.GenerateSine() * depth;
-        let modulation2 = this.wave2.GenerateSine() * depth;
-        let modulation3 = this.wave3.GenerateSine() * depth;
-        let modulation4 = this.wave4.GenerateSine() * depth;
-
-        let feedback1 = this.cb1.readBuffer((2819.0 + modulation1) * size);
-        let feedback2 = this.cb2.readBuffer((3343.0 + modulation2) * size);
-        let feedback3 = this.cb3.readBuffer((3581.0 + modulation3) * size);
-        let feedback4 = this.cb4.readBuffer((4133.0 + modulation4) * size);
-
-        let lpf1 = this._biquad1.process_sample(feedback1);
-        let lpf2 = this._biquad2.process_sample(feedback2);
-        let lpf3 = this._biquad3.process_sample(feedback3);
-        let lpf4 = this._biquad4.process_sample(feedback4);
-
-        let damp1 = (lpf1 - feedback1) * damping;
-        let damp2 = (lpf2 - feedback2) * damping;
-        let damp3 = (lpf3 - feedback3) * damping;
-        let damp4 = (lpf4 - feedback4) * damping;
-
-        let A = (damp1 + feedback1) * 0.5 * (decay * 0.25 + 0.75) + drySignal1;
-        let B = (damp2 + feedback2) * 0.5 * (decay * 0.25 + 0.75) + drySignal2;
-        let C = (damp3 + feedback3) * 0.5 * (decay * 0.25 + 0.75);
-        let D = (damp4 + feedback4) * 0.5 * (decay * 0.25 + 0.75);
-
-        let output1 = A + B + C + D;
-        let output2 = A - B + C - D;
-        let output3 = A + B - C - D;
-        let output4 = A - B - C + D;
-
-        this.cb1.writeBuffer(output1);
-        this.cb2.writeBuffer(output2);
-        this.cb3.writeBuffer(output3);
-        this.cb4.writeBuffer(output4);
-
-        outputs[0][0][i] = C * mix + inputs[0][0][i] * (1 - mix);
-        outputs[0][1][i] = D * mix + inputs[0][1][i] * (1 - mix);
-      }
-    }
-    return true;
-  }
-}
-
-registerProcessor('feedback-delay-network-processor', FeedbackDelayNetworkProcessor);
-
-class JohnStautnerMillerPucketteFeedbackDelayNetworkProcessor extends AudioWorkletProcessor
-{
-  constructor(options)
-  {
-    super(options);
-    this.sampleRate = sampleRate;
-
-    this.wave1 = new functionGenerator();
-    this.wave2 = new functionGenerator();
-    this.wave3 = new functionGenerator();
-    this.wave4 = new functionGenerator();
-
-    this.wave1._cycle = 0;
-    this.wave2._cycle = 0.25;
-    this.wave3._cycle = 0.5;
-    this.wave4._cycle = 0.75;
-
-    this.wave1._pitch = 1;
-    this.wave2._pitch = 1;
-    this.wave3._pitch = 1;
-    this.wave4._pitch = 1;
-
-    this.cb1 = new circularBuffer();
-    this.cb2 = new circularBuffer();
-    this.cb3 = new circularBuffer();
-    this.cb4 = new circularBuffer();
-
-    this.cb1.createBuffer(1024);
-    this.cb2.createBuffer(2048);
-    this.cb3.createBuffer(4096);
-    this.cb4.createBuffer(8192);
-
-    this._coefficient = new coefficient(
-      {
-        filterType: "low-pass2",
-        frequencyCut: 150,
-        sampleRate: this.sampleRate,
-        res: 0.25,
-        slope: 0,
-        magnitude: 0
-      });
-
-    this._biquad1 = new biquad(
-      {
-        b0: this._coefficient.b0, 
-        b1: this._coefficient.b1, 
-        b2: this._coefficient.b2, 
-        a1: this._coefficient.a1, 
-        a2: this._coefficient.a2
-      });
-
-    this._biquad2 = new biquad(
-      {
-        b0: this._coefficient.b0, 
-        b1: this._coefficient.b1, 
-        b2: this._coefficient.b2, 
-        a1: this._coefficient.a1, 
-        a2: this._coefficient.a2
-      });
-  }
-
-  static get parameterDescriptors() 
-  {
-		return [
-      ["bypass",        0,      0,    1,    "k-rate"],
-      ["brightness",    2500,   150,  5000, "k-rate"],
-      ["spread",        0.25,   0,    1,    "k-rate"],
-      ["decay",         0.91,   0,    1,    "k-rate"],
-      ["frequency",     0.375,  0,    1,    "k-rate"],
-      ["depth",         127,    0,    127,  "k-rate"],
-      ["mix",           1,      0,    1,    "k-rate"],
-      ["freeze",        0,      0,    1,    "k-rate"],
-		].map(x => new Object({
-      name: x[0],
-			defaultValue: x[1],
-			minValue: x[2],
-			maxValue: x[3],
-			automationRate: x[4]
-		}));
-  } 
-
-  process(inputs, outputs, parameters)
-  {
-    let bypass      = parameters['bypass'][0];
-    let brightness  = parameters['brightness'][0];
-    let spread      = parameters['spread'][0];
-    let decay       = parameters['decay'][0];
-    let frequency   = parameters['frequency'][0];
-    let depth       = parameters['depth'][0];
-    let mix         = parameters['mix'][0];
-    let freeze      = parameters['freeze'][0];
-
-    let factor = 2.5;
-    this.wave1._pitch = frequency / factor;
-    this.wave2._pitch = frequency;
-    this.wave3._pitch = frequency * factor;
-    this.wave4._pitch = frequency * factor * factor;
-
-    let rad_0 = 0.1250 * 2 * Math.PI;
-    let rad_1 = spread * 2 * Math.PI;
-    this._coefficient.frequencyCut = brightness;
-    this._biquad1._a1 = this._coefficient.a1;
-    this._biquad1._a2 = this._coefficient.a2;
-    this._biquad1._b0 = this._coefficient.b0;
-    this._biquad1._b1 = this._coefficient.b1;
-    this._biquad1._b2 = this._coefficient.b2;
-
-    this._biquad2._a1 = this._coefficient.a1;
-    this._biquad2._a2 = this._coefficient.a2;
-    this._biquad2._b0 = this._coefficient.b0;
-    this._biquad2._b1 = this._coefficient.b1;
-    this._biquad2._b2 = this._coefficient.b2;
-
-    if (inputs[0].length == 2)
-    {
-      for (let i = 0; i < 128; i++)
-      {
-        let drySignal1 = inputs[0][0][i] * (1 - bypass);
-        let drySignal2 = inputs[0][1][i] * (1 - bypass);
-
-        let modulation1 = this.wave1.Generate().triangle * depth;
-        let modulation2 = this.wave2.Generate().triangle * depth;
-        let modulation3 = this.wave3.Generate().triangle * depth;
-        let modulation4 = this.wave4.Generate().triangle * depth;
-        
-        let feedback1 = this.cb1.readBufferLinear((887.0 + modulation1));
-        let feedback2 = this.cb2.readBufferLinear((1913.0 + modulation2));
-        let feedback3 = this.cb3.readBufferLinear((3967.0 + modulation3));
-        let feedback4 = this.cb4.readBufferLinear((8053.0 + modulation4));
-
-        let temp1 = feedback1 * Math.cos(rad_0) - feedback2 * Math.sin(rad_0);
-        let temp2 = feedback1 * Math.sin(rad_0) + feedback2 * Math.cos(rad_0);
-        let temp3 = feedback3 * Math.cos(rad_0) - feedback4 * Math.sin(rad_0);
-        let temp4 = feedback3 * Math.sin(rad_0) + feedback4 * Math.cos(rad_0);
-        
-        let output1 = temp1 * Math.cos(rad_1) - temp3 * Math.sin(rad_1);
-        let output2 = temp1 * Math.sin(rad_1) + temp3 * Math.cos(rad_1);
-        let output3 = temp2 * Math.cos(rad_1) - temp4 * Math.sin(rad_1);
-        let output4 = temp2 * Math.sin(rad_1) + temp4 * Math.cos(rad_1);
-
-        this.cb1.writeBuffer(drySignal1 + output1 * decay);
-        this.cb2.writeBuffer(drySignal2 + output3 * decay);
-        this.cb3.writeBuffer(this._biquad1.process_sample(output2 * decay));
-        this.cb4.writeBuffer(this._biquad2.process_sample(output4 * decay));
-
-        outputs[0][0][i] = (output3 * 2) * mix + inputs[0][0][i] * (1 - mix);
-        outputs[0][1][i] = (output4 * 2) * mix + inputs[0][1][i] * (1 - mix);
-      }
-    }
-    return true;
-  }
-}
-
-registerProcessor('js-mp-feedback-delay-network-processor', JohnStautnerMillerPucketteFeedbackDelayNetworkProcessor);

@@ -1,288 +1,420 @@
-import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.118/build/three.module.js';
-import {OrbitControls} from 'https://cdn.jsdelivr.net/npm/three@0.118/examples/jsm/controls/OrbitControls.js';
-import {RectAreaLightHelper}  from 'https://cdn.jsdelivr.net/npm/three@0.118/examples/jsm/helpers/RectAreaLightHelper.js';
-import {PositionalAudioHelper} from 'https://cdn.jsdelivr.net/npm/three@0.118/examples/jsm/helpers/PositionalAudioHelper.js';
-import VS from './shaders/vertexShader.glsl.js';
-import FS from './shaders/fragmentShader.glsl.js';
+class NodeManager
+{
+  constructor(options)
+  {
+    this.toggleTime = 0;
+    this.context = null;
 
-let DBG_CAM_POS = false;
-
-let option = class {
-  constructor() {
-    this.message = 'dat.gui';
-    this.rectLightWidth = 80;
-    this.rectLightHeight = 80;
-    this.rectLightIntensity = 0.85;
+    this.isChecked = null;
+    this.isReady = false;
+    this.initNodes();
   }
-};
 
-class material {
-  constructor() {
-
+  initNodes()
+  {
+    // place audio worklet node here!
+    this.trackNode1 = null;
+    this.trackNode2 = null;
+    this.grainNode = null;
+    this.reverbNode  = null;
   }
-}
 
-class BasicWorld {
-  constructor() {
-    this.initAssets();
-    this.initOptions();
-    this.initRenderer();
-    this.setCameraPositionAndControl();
-    this.addLight();
-    this.addTexture();
-    this.addPlane();
-    // let object1 = ;
-
-    for(let col = 0; col < 7; col++)
+  async initAudioPreference()
+  {
+    let audioContext = new AudioContext(); 
+    try 
     {
-      for(let row = 0; row < 7; row++)
+      await audioContext.audioWorklet.addModule("digital-processor.js");
+      
+      fetch("123456.wav")
+      .then(response => response.arrayBuffer())
+      .then(arrayBuffer => audioContext.decodeAudioData(arrayBuffer))
+      .then(audioBuffer => 
       {
-        this.addListener(this.addSphere(4, 0, row*10 + 10, col*10 - 30));
-      }
+        this.createTopology(audioBuffer, audioContext);
+      })
+    } 
+    catch (e) 
+    {
+      console.log(e);
     }
-
-    // let object2 = this.addSphere(4, 0, 30, 0);
-    // this.addListener(object2);
-
-    // let object3 = this.addSphere(4, 0, 40, 0);
-    // this.addListener(object3);
-
-    this.buffer = new Array(128).fill(0);
-
-    window.addEventListener('resize', () => {
-      this.OnWindowResize();
-    }, false); 
-
-    this.RAF();
+    this.context = audioContext;
   }
 
-  initAssets() {
-    this.previousRAF = null;
-    this.totalTime = 0.0;
-    this.index = 0;
-    this.scene = new THREE.Scene();
-    // const axesHelper = new THREE.AxesHelper(100);
-    // this.scene.add(axesHelper);
+  createTopology(audioBuffer, audioContext) 
+  {    
+    this.trackNode1 = audioContext.createBufferSource();
+    // this.trackNode2 = audioContext.createBufferSource();
 
-    this._currentCameraPosition = new THREE.Vector3();
+    this.trackNode1.buffer = audioBuffer;
+    // this.trackNode2.buffer = audioBuffer;
+
+    this.trackNode1.loop = true;
+    // this.trackNode1.loopStart = 1.2531;
+    // this.trackNode1.loopEnd = 1.673;
+    // this.trackNode1.playbackRate.value = 0.999;
+
+    // this.trackNode2.loop = true;
+    // this.trackNode2.loopStart = 1.2531;
+    // this.trackNode2.loopEnd = 1.673;
+    // this.trackNode2.playbackRate.value = 1.001;
+
+    this.grainNode = new AudioWorkletNode(audioContext, 'grainular-processor', { inputChannelCount: [2], outputChannelCount: [1] });
+    this.reverbNode = new AudioWorkletNode(audioContext, 'dattorro-reverb-processor', { inputChannelCount: [2], outputChannelCount: [2] });
+
+    let filter = audioContext.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.value = 5000;
+
+    this.trackNode1.connect(this.grainNode).connect(filter).connect(this.reverbNode).connect(audioContext.destination);
+    // this.trackNode2.connect(audioContext.destination);
+
+    this.trackNode1.start();
+    // this.trackNode2.start();
+
+    this.isReady = true;
   }
 
-  initOptions() {
-    this.width = 10;
-    this.height = 10;
-  }
-
-  initRenderer() {
-    this.renderer = new THREE.WebGLRenderer({
-      antialias: true,
-    });
-
-    this.renderer.shadowMap.enabled = true;
-    this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-    this.renderer.setPixelRatio(window.devicePixelRatio);
-    this.renderer.setSize(window.innerWidth, window.innerHeight);
-    document.body.appendChild(this.renderer.domElement);
-  }
-
-  setCameraPositionAndControl() {
-    const fov = 45;
-    const far = 1000.0;
-    this.camera = new THREE.PerspectiveCamera(fov, window.innerWidth/window.innerHeight, 1, far);
-    this.camera.position.set(150, 50, 0.0);
-
-    this.controls = new OrbitControls(this.camera, this.renderer.domElement);
-    this.controls.target.set(0, 50, 0);
-    this.controls.maxPolarAngle = THREE.Math.degToRad(100);
-    this.controls.minPolarAngle = THREE.Math.degToRad(80);
-    this.controls.maxDistance = 300;
-    this.controls.minDistance = 50;
-    this.controls.update();
-    this.controls.addEventListener('change', this.onChangePosition.bind(this));
-  }
-
-  onChangePosition() {
-    this.camera.getWorldPosition(this._currentCameraPosition);
-    if(DBG_CAM_POS){console.log(this._currentCameraPosition);}
-  }
-
-  addLight() {
-    const width = 80;
-    const height = 80;
-    const intensity = 0.85;
-    this.rectLight1 = new THREE.RectAreaLight(0xffffff, intensity,  width, height);
-    this.rectLight1.position.set(50, 40, -70);
-    this.rectLight1.lookAt(0, 30, 0);
-    this.scene.add(this.rectLight1);
-
-    this.rectLight2 = new THREE.RectAreaLight(0xffffff, intensity,  width, height);
-    this.rectLight2.position.set( 50, 40, 70);
-    this.rectLight2.lookAt( 0, 30, 0 );
-    this.scene.add(this.rectLight2);
-
-    // this.rectLightHelper1 = new RectAreaLightHelper(this.rectLight1);
-    // this.rectLight1.add(this.rectLightHelper1);
-    // this.rectLightHelper2 = new RectAreaLightHelper(this.rectLight2);
-    // this.rectLight2.add(this.rectLightHelper2);
-
-  }
-
-  addTexture() {
-    const loader = new THREE.CubeTextureLoader();
-    const texture = loader.load([
-      // './resources/grid.jpg',
-      // './resources/grid.jpg',
-      // './resources/grid.jpg',
-      // './resources/grid.jpg',
-      // './resources/grid.jpg',
-      // './resources/grid.jpg',
-        // './resources/posx.jpg',
-        // './resources/negx.jpg',
-        // './resources/posy.jpg',
-        // './resources/negy.jpg',
-        // './resources/posz.jpg',
-        // './resources/negz.jpg',
-    ]);
-    this.scene.background = texture;
-  }
-
-  addPlane() {
-    const plane = new THREE.Mesh(
-      new THREE.PlaneGeometry(512, 512, 0, 0),
-      new THREE.MeshStandardMaterial({
-        color: 0xFFFFFF,
-      }));
-    plane.castShadow = true;
-    plane.receiveShadow = true;
-    plane.rotation.x = -Math.PI / 2;
-    plane.position.y = 0;
-    this.scene.add(plane);
-  }
-
-  addSphere(radius, x, y, z) {
-    let material = new THREE.ShaderMaterial({
-      uniforms: {
-        u_light_pos: {
-          value: new THREE.Vector3(0, 0, 0),
-        },
-        u_noise_density: {
-          value : 0.5,
-        },
-        u_noise_strength: {
-          value : 0.5,
-        },
-        u_light_color: {
-          value: new THREE.Color(0x888888),
-        },
-        u_light_intensity: {
-          value : 0.65,
-        },
-        u_noise_coef: {
-          value : 3.7,
-        },
-        u_noise_min: {
-          value : 0.75,
-        },
-        u_noise_max: {
-          value : 4,
-        },
-        u_noise_scale: {
-          value : 0.8,
-        },
-        u_color: {
-          value: new THREE.Color(0x666666),
-        },
-        u_time: {
-          value: 0.0,
-        },
-        u_resolution: {
-          value: new THREE.Vector2(window.innerWidth, window.innerHeight),
-        },
-      },
-      vertexShader: VS,
-      fragmentShader: FS,
-    });
-
-    let sphere = new THREE.Mesh(
-      new THREE.SphereGeometry(radius, 64, 64),
-      new THREE.ShaderMaterial(material)
-      );
-    sphere.material.uniforms.u_light_pos.value = new THREE.Vector3(x+30, y, z);
-    // console.log(x+30, y, z);
-    sphere.position.set(x, y, z);
-    sphere.castShadow = true;
-    sphere.receiveShadow = true;
-    sphere.rotateY(THREE.Math.degToRad(90));
-    this.scene.add(sphere);
-    return sphere;
-  }
-
-  addListener(object) {
-    this.listener = new THREE.AudioListener();
-    this.camera.add(this.listener);
-    this.listener.context.audioWorklet.addModule("digital-processor.js").then (() => this.addWorkletNode(object));
-  }
-
-  addWorkletNode(object) {
-    const sound = new THREE.PositionalAudio(this.listener);
-    let oscillator = new AudioWorkletNode(this.listener.context,  'drip-source-processor', { outputChannelCount: [1] });
-    let level = new AudioWorkletNode(this.listener.context,  'level-meter-processor', { outputChannelCount: [1] });
-    oscillator.connect(level);
-    level.port.onmessage = (e) => {
-      let energy = e.data.energy;
-      let p2p = e.data.peak;
-      // this.buffer.push(this.buffer.shift());
-      // this.buffer[127] = energy * 64;
-      // let peak = 0;
-      // this.buffer.forEach((value, index, array) => {
-      //   peak = peak + array[index];
-      // })
-
-      object.material.uniforms.u_noise_strength.value = Math.sqrt(Math.sqrt(Math.sqrt(p2p))) * 5;
-      object.material.uniforms.u_noise_density.value = energy;    
-      object.material.uniforms.u_time.value += 128 / 48000;
-      object.material.uniforms.u_noise_scale.value = (Math.random() / 100) + 1.875;
+  get MIX() {return this._MIX;}
+  set MIX(input_data)
+  {
+    this._MIX = input_data;
+    if(this.context)
+    {
+      let parameter = this.grainNode.parameters.get("mix");
+      parameter.value = input_data / 100;
     }
-    sound.setNodeSource(level);
-    sound.setRefDistance(10);
-    sound.setDirectionalCone(180, 230, 0.1);
-    sound.setVolume(0.5);
-    // const helper = new PositionalAudioHelper(sound, 25);
-    // sound.add(helper);
-    object.add(sound);
-  }  
-
-  OnWindowResize() {
-    this.camera.aspect = window.innerWidth / window.innerHeight;
-    this.camera.updateProjectionMatrix();
-    this.renderer.setSize(window.innerWidth, window.innerHeight);
   }
 
-  RAF() {
-    requestAnimationFrame((t) => {
-      if (this.previousRAF === null) {
-        this.previousRAF = t
-      }
-
-      this.RAF();
-      this.renderer.render(this.scene, this.camera);
-      this.Step(t - this.previousRAF);
-      this.previousRAF = t;
-    });
+  get DOMAIN() {return this._DOMAIN;}
+  set DOMAIN(input_data)
+  {
+    this._DOMAIN = input_data;
+    if(this.context)
+    {
+      let parameter = this.grainNode.parameters.get("domain");
+      parameter.value = input_data / 100;
+    }
   }
 
-  Step(timeElapsed) {
-    const timeElapsedS = timeElapsed * 0.1;
-    this.totalTime = this.totalTime + timeElapsedS;
-    const tempTime = parseInt(this.totalTime);
+  get RANDOMNESS() {return this._RANDOMNESS;}
+  set RANDOMNESS(input_data)
+  {
+    this._RANDOMNESS = input_data;
+    if(this.context)
+    {
+      let parameter = this.grainNode.parameters.get("randomness");
+      parameter.value = input_data / 100;
+    }
+  }
+
+  get START() {return this._START;}
+  set START(input_data)
+  {
+    this._START = input_data;
+    if(this.context)
+    {
+      this.trackNode1.loopStart = (input_data / 100) * this.trackNode1.buffer.duration;
+      this.trackNode2.loopStart = (input_data / 100) * this.trackNode2.buffer.duration;
+    }
+  }
+
+  get LENGTH() {return this._PANNING;}
+  set LENGTH(input_data)
+  {
+    this._LENGTH = input_data;
+    if(this.context)
+    {
+      this.trackNode1.loopEnd = (input_data / 100) * this.trackNode1.buffer.duration;
+      this.trackNode2.loopEnd = (input_data / 100) * this.trackNode2.buffer.duration;
+    }
+  }
+
+  get PANNING() {return this._PITCH;}
+  set PANNING(input_data)
+  {
+    this._PANNING = input_data;
+    if(this.context)
+    {
+      let parameter = this.grainNode.parameters.get("panning");
+      parameter.value = input_data / 100;
+    }
+  }
+
+  get PITCH() {return this._PITCH;}
+  set PITCH(input_data)
+  {
+    this._PITCH = input_data;
+    if(this.context)
+    {
+      let frequency1 = Math.pow(2, (input_data / 12.0));
+      let frequency2 = Math.pow(2, (input_data * 1.001 / 12.0));
+      this.trackNode1.playbackRate.value = frequency1;
+      this.trackNode2.playbackRate.value = frequency2;
+    }
+  }
+
+  get PHASESHIFT() {return this._PHASESHIFT;}
+  set PHASESHIFT(input_data)
+  {
+    this._PHASESHIFT = input_data;
+    if(this.context)
+    {
+      let parameter = this.grainNode.parameters.get("phaseshift");
+      parameter.value = input_data / 100;
+    }
+  }
+
+
+  get PHASENULL() {return this._PHASENULL;}
+  set PHASENULL(input_data)
+  {
+    this._PHASENULL = input_data;
+    if(this.context)
+    {
+      let parameter = this.grainNode.parameters.get("phasenull");
+      parameter.value = input_data / 100;
+    }
+  }
+
+
+  get BANDSHIFT() {return this._BANDSHIFT;}
+  set BANDSHIFT(input_data)
+  {
+    this._BANDSHIFT = input_data;
+    if(this.context)
+    {
+      let parameter = this.grainNode.parameters.get("bandshift");
+      parameter.value = parseInt(input_data);
+    }
   }
 }
 
-let APP = null;
+const STATE = document.getElementById("STATE");
+const STATELABEL = document.getElementById("STATE-LABEL");
 
-window.addEventListener('load', () => {
-  console.log("finished loading");
-  document.addEventListener("click", function( event ) {
-    APP = new BasicWorld();
-    console.log("YES");
-  }, {once : true});
-});
+window.addEventListener('click', onClickEventHandler);
+
+async function onClickEventHandler(event)
+{
+  await ToggleAction(event);
+  // clicked = clicked + 1;
+  // if(clicked == 1)
+  // {
+  //   singleClickTimer = setTimeout(() => { clicked = 0; console.log("single click!"); TactileAction(event); }, 200);
+  // } 
+  // else if (clicked === 2) 
+  // {
+  //   clearTimeout(singleClickTimer);
+  //   clicked = 0;
+  //   console.log("double click!");
+  //   await ToggleAction();
+  // }
+}
+
+async function ToggleAction(event)
+{
+  if(event.target.id == "STATE-LABEL")
+  {
+    nodes.toggleTime = nodes.toggleTime + 1;
+    nodes.isChecked = nodes.toggleTime % 2;
+    if(nodes.toggleTime == 1)
+    {
+      try
+      {
+        await nodes.initAudioPreference();
+        console.log(nodes.context.state);
+        window.setTimeout(function() 
+        {
+          timeOutHandler = window.setInterval(refreshConsole, 100);
+        }, 100);
+        STATE.innerHTML = "PAUSE";
+      }
+      catch(e)
+      {
+        console.error(e);
+      }
+    }
+    else if(nodes.isChecked)
+    {
+      nodes.context.resume().then(function() 
+      {
+        console.log(nodes.context.state);
+        window.setTimeout(function() 
+        {
+          timeOutHandler = window.setInterval(refreshConsole, 100);
+        }, 100);
+
+        STATE.innerHTML = "PAUSE";
+      });
+    }
+    else
+    {
+      nodes.context.suspend().then(function() 
+      {
+        resetConsole();
+        console.log(nodes.context.state);
+        clearInterval(timeOutHandler);
+        clearInterval(masterClockTimeOut);
+      });
+    }
+  }
+}
+
+function resetConsole()
+{
+  STATE.innerHTML = "PLAY";
+  STATELABEL.innerHTML = ">STATE";
+}
+
+function refreshConsole()
+{
+  animationIndex++;
+  animationIndex = (animationIndex % 4);
+  if(animationIndex == 0)
+  {
+    STATELABEL.innerHTML = "\\STATE";
+  }
+  else if(animationIndex == 1)
+  {
+    STATELABEL.innerHTML = "|STATE";
+  }
+  else if(animationIndex == 2)
+  {
+    STATELABEL.innerHTML = "/STATE";
+  }
+  else if(animationIndex == 3)
+  {
+    STATELABEL.innerHTML = "-STATE";
+  }
+}
+
+const nodes = new NodeManager();
+
+let timeOutHandler = null;
+let masterClockTimeOut = null;
+let tapped = null;
+let clicked = null;
+let animationIndex = 0;
+
+let SIZE = 128;
+let DATA1 = new Array(SIZE).fill(0);
+let DATA2 = new Array(SIZE).fill(0);
+let SPACE = (2*Math.PI/SIZE);
+let FPS = 30;
+let OMEGA = (1 / FPS) * 2 * Math.PI;
+let DEG = 360;
+let ANGLE = 45;
+let SPEED = 1;
+let AMOUNT = 1;
+let RADIUS = 64;
+let CG_pixel;
+let counter = 0;
+
+let canvas;
+
+function preload() 
+{
+  CG_pixel = loadFont('CG-pixel-3x5-mono.woff');
+}
+
+function setup() 
+{
+  canvas = createCanvas(windowWidth/4, windowWidth/4, WEBGL);
+  // canvas = createCanvas(windowWidth/4, windowWidth/4);
+  angleMode(DEGREES);
+  frameRate(FPS);
+
+  textFont(CG_pixel);
+  textSize(0.05 * windowWidth);
+  textAlign(CENTER, CENTER);
+}
+
+function draw() 
+{
+  background(120);
+  // background(0);
+
+  stroke(255, 255, 255);
+  strokeWeight(6);
+  line(windowWidth/8, windowWidth/8, 0, -windowWidth/8, windowWidth/8, 0);
+  line(windowWidth/8, -windowWidth/8, 0, -windowWidth/8, -windowWidth/8, 0);
+  line(windowWidth/8, windowWidth/8, 0, windowWidth/8, -windowWidth/8, 0);
+  line(-windowWidth/8, windowWidth/8, 0, -windowWidth/8, -windowWidth/8, 0);
+
+  if(nodes.isChecked & nodes.isReady)
+  {
+    gui_disp_fps();
+  }
+
+
+  if(nodes.isChecked & nodes.isReady)
+  {
+    // gui_disp_circle();
+    gui_plot_signal();
+  }
+}
+
+function windowResized() 
+{
+  textSize(0.05 * windowWidth);
+  resizeCanvas(windowWidth/4, windowWidth/4);
+}
+
+function gui_disp_fps()
+{
+  fill(255, 255, 255, 255);
+  text(counter++, 0, 0);
+}
+
+function gui_disp_circle()
+{
+  noFill();
+  strokeWeight(1);
+  beginShape();
+  for(let j = 0; j < 360; j+=10)
+  {
+    stroke(255, 255, 255);
+    let x = RADIUS * cos(j);
+    let y = RADIUS * sin(j);
+    let z = 0;
+    vertex(x, y, z);
+  }
+  endShape(CLOSE);
+}
+
+function gui_plot_signal()
+{
+  nodes.grainNode.port.onmessage = function(e)
+  {
+    e.data.buffer1.forEach((value, index, array) =>
+    {
+      DATA1[index] = Math.abs(value * 128);
+    });
+    e.data.buffer2.forEach((value, index, array) =>
+    {
+      DATA2[index] = Math.abs(value * 128);
+    });
+  }
+  
+  noFill();  
+  strokeWeight(1);
+  for(let i = 0; i < SIZE; i++)
+  {
+    beginShape();
+    let posistion = -(frameCount % DEG) * 2 * Math.PI / DEG + i * SPACE;
+    let _x = 1 * Math.cos(posistion) * windowWidth/8;
+    let _y = 1 * Math.sin(posistion) * windowWidth/8;
+    vertex(_x, _y, -DATA1[i]);       
+    vertex(_x, _y,  DATA2[i]);    
+    if(i == 0)
+    {
+      stroke(255,0,0);
+    }
+    else
+    {
+      stroke(255,255,255);
+    }
+    endShape(CLOSE);
+  } 
+}
