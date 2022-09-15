@@ -1,146 +1,33 @@
 <!DOCTYPE html>
 <html lang="en">
-    
+
 <head>
-    <title>untitled</title>
+    <title>kweiwen</title>
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <script src="./dist/jquery-3.6.0.js"></script>
-    <script src="./dist/jquery.knob.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/p5@1.4.0/lib/p5.js"></script>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <script>
-        $(function($) 
-        {
-            $(".knob").knob(
-                {
-                change: function (value) 
-                {
-                    let id = this.$.attr("id");
-                    $(nodes).attr(id, value)
-                },
-                
-                release: function (value) 
-                {
-                    let id = this.$.attr("id");
-                    $(nodes).attr(id, value)
-                },
-                        
-                cancel: function () 
-                {
-                },
+    <link rel="apple-touch-icon" sizes="180x180" href="./resources/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="./resources/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="./resources/favicon-16x16.png">
+    <link rel="manifest" href="./resources/site.webmanifest">
+    <link rel="mask-icon" href="./resources/safari-pinned-tab.svg" color="#5bbad5">
+    <meta name="msapplication-TileColor" content="#da532c">
+    <meta name="theme-color" content="#ffffff">
 
-                draw : function () 
-                {
-                    // "tron" case
-                    if(this.$.data('skin') == 'tron') 
-                    {
-                        this.cursorExt = 0.3;
 
-                        var a = this.arc(this.cv)  // Arc
-                            , pa                   // Previous arc
-                            , r = 1;
-                    
-                        this.g.lineWidth = this.lineWidth;
-                    
-                        if (this.o.displayPrevious) 
-                        {
-                            pa = this.arc(this.v);
-                            this.g.beginPath();
-                            this.g.strokeStyle = this.pColor;
-                            this.g.arc(this.xy, this.xy, this.radius - this.lineWidth, pa.s, pa.e, pa.d);
-                            this.g.stroke();
-                        }
-                    
-                        this.g.beginPath();
-                        this.g.strokeStyle = r ? this.o.fgColor : this.fgColor ;
-                        this.g.arc(this.xy, this.xy, this.radius - this.lineWidth, a.s, a.e, a.d);
-                        this.g.stroke();
-                    
-                        this.g.lineWidth = 2;
-                        this.g.beginPath();
-                        this.g.strokeStyle = this.o.fgColor;
-                        this.g.arc(this.xy, this.xy, this.radius - this.lineWidth + 1 + this.lineWidth * 2 / 3, 0, 2 * Math.PI, false);
-                        this.g.stroke();
-                    
-                        return false;
-                    }
-                }
-            });
 
-            $(".ranger").knob(
-                {
-                change: function (value) 
-                {
-                    let id = this.$.attr("id");
-                    $(nodes).attr(id, value);
-                    console.log("change");
-                },
-                
-                release: function (value) 
-                {
-                    let id = this.$.attr("id");
-                    $(nodes).attr(id, value);
-                    console.log("release");
-                },
-                        
-                cancel: function () 
-                {
-                },
 
-                draw : function () 
-                {
-                    // "tron" case
-                    if(this.$.data('skin') == 'tron') 
-                    {
-                        this.cursorExt = 0.3;
-
-                        var a = this.arc(this.cv)  // Arc
-                            , pa                   // Previous arc
-                            , r = 1;
-                    
-                        this.g.lineWidth = this.lineWidth;
-                    
-                        if (this.o.displayPrevious) 
-                        {
-                            pa = this.arc(this.v);
-                            this.g.beginPath();
-                            this.g.strokeStyle = this.pColor;
-                            this.g.arc(this.xy, this.xy, this.radius - this.lineWidth, pa.s, pa.e, pa.d);
-                            this.g.stroke();
-                        }
-                    
-                        this.g.beginPath();
-                        this.g.strokeStyle = r ? this.o.fgColor : this.fgColor ;
-                        this.g.arc(this.xy, this.xy, this.radius - this.lineWidth, a.s, a.e, a.d);
-                        this.g.stroke();
-                    
-                        this.g.lineWidth = 2;
-                        this.g.beginPath();
-                        this.g.strokeStyle = this.o.fgColor;
-                        this.g.arc(this.xy, this.xy, this.radius - this.lineWidth + 1 + this.lineWidth * 2 / 3, 0, 2 * Math.PI, false);
-                        this.g.stroke();
-                    
-                        return false;
-                    }
-                }
-                }
-            );
-        });
-    </script>
 </head>
 
 <!-- CSS -->
 <style>
-    @font-face 
-    {
+    @font-face {
         font-family: 'CG-pixel-3x5-mono';
-        src: url(./CG-pixel-3x5-mono.woff) format('woff');
+        src: url(CG-pixel-3x5-mono.woff) format('woff');
     }
 
-    .noselect 
-    {
+    .noselect {
         -webkit-touch-callout: none;    /* iOS Safari */
         -webkit-user-select: none;      /* Safari */
         -khtml-user-select: none;       /* Konqueror HTML */
@@ -148,196 +35,35 @@
         -ms-user-select: none;          /* Internet Explorer/Edge */
         user-select: none;              /* Non-prefixed version, currently supported by Chrome and Opera */
     }
-    
-    html, body 
-    {
+
+    html, body {
         width: 100%;
-        margin: 0;
-        padding: 0;
+        height: 100%;
         background-color: black;
     }
-    
-    body 
-    {
+
+    body {
         display: flex;
+        align-items: left;
         flex-direction: column;
         font-family: 'CG-pixel-3x5-mono';
+    }
+
+    span {
+        font-size: 4vw;
         color: white;
-    }
-
-    .knob 
-    {
-        font-family: 'CG-pixel-3x5-mono' !important;
-    }
-
-    .knob-row 
-    {
-        display: flex;
-        justify-content: center;
-        padding: 0 2vw;
-    }
-    
-    .knob-widget 
-    {
-        width: 22.5vw;
-        margin: 0 0.5vw;
-        height: 28.5vw;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        flex-direction: column;
-    }
-
-    .knob-label 
-    {
-        font-size: 3vw;
-        color:white;
-    }
-
-    .label
-    {
-        text-align: left;
-        font-size: 5vw;
-        color:white;
-        line-height: 6vw;
-    }
-
-    .table 
-    {
-        display: flex;
-        width: 59%;
-        height: 2vw;
-        padding: 2.5vw 4vw;
-    }
-
-    .table > * 
-    {
-        flex: 0 0 50%;
-        width: 50%;
+		line-height: 5vw;
     }
 
 </style>
 
 <!-- HTML -->
 <body>
-    <!-- <script src="index.js"></script> -->
-
-    <table style="width: 100%; padding: 1vw;" class="noselect">
-        <colgroup>
-            <col style="width: 40%;">
-            <col style="width: 60%;">
-        </colgroup>
-        <tr>
-            <th>
-                <div class="label" id="STATE-LABEL">>STATE</div>
-            </th>
-            <th>
-                <div class="label" id="STATE">PLAY</div>
-            </th>
-        </tr>
-    </table>
-
-    <div class="knob-main noselect" style="width: 100%; height: 100%;">
-
-        <div class="knob-row">
-            <div class="knob-widget">
-                <input class="knob" data-width="100%" data-fgColor=white data-skin="tron" data-thickness=".125" value="0"
-                data-cursor="true" data-min="0" data-max="255" data-angleOffset=-135 data-angleArc=270 id="BANDSHIFT">
-                <div class="knob-label">POWER</div>
-            </div>
-            <div class="knob-widget">
-                <input class="knob" data-width="100%" data-fgColor=white data-skin="tron" data-thickness=".125" value="0"
-                data-cursor="true" data-min="-100" data-max="100" data-angleOffset=-135 data-angleArc=270 id="PHASESHIFT">
-                <div class="knob-label">PHASE</div>
-            </div>
-            <div class="knob-widget">
-                <input class="knob" data-width="100%" data-fgColor=white data-skin="tron" data-thickness=".125" value="0"
-                    data-min="0" data-max="100" data-angleOffset=-135 data-angleArc=270 id="RANDOMNESS">
-                <div class="knob-label">RANDOM</div>
-            </div>
-            <div class="knob-widget">
-                <input class="knob" data-width="100%" data-fgColor=white data-skin="tron" data-thickness=".125" value="0"
-                    data-min="0" data-max="100" data-angleOffset=-135 data-angleArc=270 id="PHASENULL">
-                <div class="knob-label">ROBOT</div>
-            </div>
-            <div class="knob-widget">
-                <input class="knob" data-width="100%" data-fgColor=white data-skin="tron" data-thickness=".125" value="50"
-                    data-min="0" data-max="100" data-angleOffset=-135 data-angleArc=270 id="MIX">
-                <div class="knob-label">MIX</div>
-            </div>
-        </div>
-
-        <div class="knob-row">
-            <!-- <div class="knob-widget">
-                <input class="knob" data-width="100%" data-fgColor=white data-skin="tron" data-thickness=".125" value="50"
-                    data-min="0" data-max="100" data-angleOffset=-135 data-angleArc=270 id="PANNING">
-                <div class="knob-label">PANNING</div>
-            </div>
-            <div class="knob-widget">
-                <input class="knob" data-width="100%" data-fgColor=white data-skin="tron" data-thickness=".125" value="0"
-                data-cursor="true" data-min="-24" data-max="24" data-angleOffset=-135 data-angleArc=270 id="PITCH">
-                <div class="knob-label">PITCH</div>
-            </div> -->
-
-            
-            <!-- <div class="knob-widget" style="position:relative;margin:auto">
-                <div style="position:absolute;left:0px;top:0px">
-                    <div style="display:inline;width:100px;height:100px;">
-                        <canvas style="width: 100px; height: 100px;"></canvas>
-                        <input class="ranger" data-cursor="true" data-min="0" data-skin="tron" data-max="24" data-bgcolor="#333" data-fgcolor="#ffec03" data-displayinput="false" data-width="200" data-height="200" data-thickness=".3" style="display: none; width: 0px; visibility: hidden;" value="10">
-                    </div>
-                </div>
-                <div style="position:absolute;left:50px;top:50px">
-                    <div style="display:inline;width:100px;height:100px;">
-                        <canvas style="width: 100px; height: 100px;"></canvas>
-                        <input class="ranger" data-cursor="true" data-min="0" data-skin="tron" data-max="60" data-bgcolor="#333" data-fgcolor="white" data-displayinput="false" data-width="100" data-height="100" data-thickness=".45" style="display: none; width: 0px; visibility: hidden;" value="49">
-                    </div>
-                </div> -->
-                <!-- <div class="knob-label">TEST</div> -->
-            </div>    
-            
-            </div>
-        </div>
-    </div>
-
-    <!-- <script>
-        function clock() {
-            var $s = $(".second"),
-                    $m = $(".minute"),
-                    $h = $(".hour");
-            d = new Date(),
-                    s = d.getSeconds(),
-                    m = d.getMinutes(),
-                    h = d.getHours();
-            $s.val(s).trigger("change");
-            $m.val(m).trigger("change");ƒ
-            $h.val(h).trigger("change");
-            setTimeout("clock()", 1000);
-        }
-        clock();
-    </script> -->
-    <!-- <div class="demo" style="color:#EEE;background:#222;height:420px;width:100%">
-        <p>× Superpose (clock)</p>
-        <div style="position:relative;margin:auto">
-            <div style="position:absolute;left:0px;top:0px">
-                <div style="display:inline;width:100px;height:100px;"><canvas style="width: 100px; height: 100px;" width="300" height="300"></canvas><input class="knob hour" data-min="0" data-max="24" data-bgcolor="#333" data-fgcolor="#ffec03" data-displayinput="false" data-width="300" data-height="300" data-thickness=".3" style="display: none; width: 0px; visibility: hidden;" value="10"></div>
-            </div>
-            <div style="position:absolute;left:50px;top:50px">
-                <div style="display:inline;width:100px;height:100px;"><canvas style="width: 100px; height: 100px;" width="300" height="300"></canvas><input class="knob minute" data-min="0" data-max="60" data-bgcolor="#333" data-displayinput="false" data-width="200" data-height="200" data-thickness=".45" style="display: none; width: 0px; visibility: hidden;" value="49"></div>
-            </div>
-            <div style="position:absolute;left:100px;top:100px">
-                <div style="display:inline;width:100px;height:100px;"><canvas style="width: 100px; height: 100px;" width="300" height="300"></canvas><input class="knob second" data-min="0" data-max="60" data-bgcolor="#333" data-fgcolor="rgb(127, 255, 0)" data-displayinput="false" data-width="100" data-height="100" data-thickness=".3" style="display: none; width: 0px; visibility: hidden;" value="49"></div>
-            </div>
-        </div>
-    </div> -->
-
+	<span>UNDER CONSTRUCTION...</span>
+	<span>STAY TUNE! AND SEE YOU SOON.</span>
 </body>
 
 <!-- JavaScript -->
 <script src="index.js"></script>
 
 </html>
-
-
-
-
