@@ -1,58 +1,140 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="zh-Hant">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Kweiwen's Portfolio</title>
-
-<style>
-  body {
-    font-family: Arial, sans-serif;
-  }
-
-  .container {
-    display: flex;
-    justify-content: center;
-    flex-direction: column; 
-    align-items: center; 
-  }
-
-  .profile {
-    display: flex;
-    flex-direction: column; 
-    align-items: center; 
-    text-align: center;
-  }
-
-  .profile h1, .profile p, .profile a {
-    margin: 0;
-    padding: 0;
-  }
-
-  .profile > div {
-    text-align: left;
-    max-width: 600px; 
-    width: 100%;
-  }
-
-  .spacer {
-    height: 20px;
-  }
-</style>
-
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Kwei-Wen Tseng — DSP engineer, audio technologist and educator.">
+  <meta name="theme-color" content="#f3f1ea">
+  <title>Kwei-Wen Tseng — DSP &amp; Audio</title>
+  <link rel="icon" href="resources/favicon.ico">
+  <link rel="stylesheet" href="style.css?v=26">
+  <script>
+    (function () {
+      const stored = localStorage.getItem("theme");
+      const preferred = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+      document.documentElement.dataset.theme = stored || preferred;
+    }());
+  </script>
 </head>
-<div class="container">
-  <section class="profile">
-    <div>
-      <h1>Kwei-Wen Tseng 曾奎紋</h1>
-      <a href="https://github.com/kweiwen">GitHub</a> / <a href="https://www.linkedin.com/in/kweiwen-tseng/">LinkedIn</a>
+<body>
+  <div class="glass-root" id="glass-root">
+  <div class="page-background" aria-hidden="true"></div>
+  <header class="site-header">
+    <nav class="nav-shell" aria-label="Primary navigation">
+      <a class="brand" href="#top" aria-label="Back to home">
+        <img class="brand-logo" src="resources/tseng.png" alt="" width="19" height="26">
+        <span data-site-name>Kwei-Wen Tseng</span>
+      </a>
+
+      <div class="nav-links" id="site-menu">
+        <a href="#work">Work</a>
+        <a href="#bio">Bio</a>
+        <a href="#portfolio">Portfolio</a>
+        <a href="#links">Links</a>
+      </div>
+
+      <div class="nav-actions">
+        <button class="icon-button theme-toggle" type="button" aria-label="Switch to dark theme">
+          <svg class="theme-icon sun-icon" aria-hidden="true" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="4"></circle>
+            <path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.65 17.65l1.42 1.42M2 12h2M20 12h2M4.93 19.07l1.42-1.42M17.65 6.35l1.42-1.42"></path>
+          </svg>
+          <svg class="theme-icon moon-icon" aria-hidden="true" viewBox="0 0 24 24">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"></path>
+          </svg>
+        </button>
+        <button class="icon-button menu-toggle" type="button" aria-expanded="false" aria-controls="site-menu" aria-label="Open navigation menu">
+          <span aria-hidden="true"></span>
+          <span aria-hidden="true"></span>
+          <span aria-hidden="true"></span>
+        </button>
+      </div>
+    </nav>
+  </header>
+
+  <main id="top">
+    <div class="page-shell">
+      <section class="hero" aria-labelledby="hero-title">
+        <img class="cover-image" src="resources/cover.png" alt="Kwei-Wen Tseng" width="1142" height="1712" fetchpriority="high">
+        <div class="identity">
+          <div class="identity-copy">
+            <!-- <p class="eyebrow">DSP · AUDIO · CREATIVE CODE</p> -->
+            <h1 id="hero-title" data-hero-title>Kwei-Wen Tseng(曾奎紋)</h1>
+            <!-- <p class="role" data-hero-subtitle>Engineer / Educator / Sound Explorer</p> -->
+          </div>
+          <div class="profile-avatar">
+            <img src="resources/profile.png" alt="Portrait of Kwei-Wen Tseng" width="1448" height="1086">
+          </div>
+        </div>
+      </section>
+
+      <section class="content-section" id="work">
+        <h2>Work</h2>
+        <p class="section-copy">I derive the math, read the papers to train the networks, design the circuit boards, write the frameworks, and build the GUIs to tune them. I've lived on factory floors, sleeping on the ground next to operators and fixtures to resolve production issues. From earbuds to EVs, I've worked on everything with an audio I/O, and I still haven't found a problem that couldn't be solved with more MLP or more op-amps. </p>
+      </section>
+
+      <section class="content-section" id="bio">
+        <h2>Bio</h2>
+        <div class="bio-list">
+          <div class="bio-item">
+            <time>Present</time>
+            <p>Senior DSP Engineer working on audio algorithms and embedded systems.</p>
+          </div>
+          <div class="bio-item">
+            <time>Weekends</time>
+            <p>Teaching music technology, including Max/MSP, Pure Data and VCV Rack.</p>
+          </div>
+          <div class="bio-item">
+            <time>Always</time>
+            <p>Exploring synthesizers, physical media and new ways to shape sound.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="content-section" id="portfolio">
+        <h2>Portfolio</h2>
+        <div class="document-links">
+          <a href="resources/documents/resume.pdf" download="Kwei-Wen-Tseng-Resume.pdf" aria-label="Download Resume PDF">
+            <span>Resume</span>
+            <span class="document-type" aria-hidden="true">PDF ↓</span>
+          </a>
+          <a href="resources/documents/curriculum-vitae.pdf" download="Kwei-Wen-Tseng-Curriculum-Vitae.pdf" aria-label="Download Curriculum Vitae PDF">
+            <span>Curriculum Vitae</span>
+            <span class="document-type" aria-hidden="true">PDF ↓</span>
+          </a>
+        </div>
+      </section>
+
+      <section class="content-section affiliate-section" id="links">
+        <h2>Links</h2>
+        <div class="affiliate-links">
+          <a href="https://github.com/kweiwen" target="_blank" rel="noreferrer">
+            <i class="social-icon github-icon" aria-hidden="true"></i>
+            <span>GitHub</span>
+          </a>
+          <a href="https://www.linkedin.com/in/kweiwen-tseng/" target="_blank" rel="noreferrer">
+            <i class="social-icon linkedin-icon" aria-hidden="true"></i>
+            <span>LinkedIn</span>
+          </a>
+          <a href="https://x.com/kweiwentseng" target="_blank" rel="noreferrer">
+            <i class="social-icon twitter-icon" aria-hidden="true"></i>
+            <span>Twitter</span>
+          </a>
+          <a href="https://www.instagram.com/tsengkweiwen/" target="_blank" rel="noreferrer">
+            <i class="social-icon instagram-icon" aria-hidden="true"></i>
+            <span>Instagram</span>
+          </a>
+        </div>
+      </section>
     </div>
-    <div class="spacer">
-    </div>
-    <div>
-      <p>Hello, I am currently employed as a Senior DSP Engineer in the Infotainment Department at Li Auto. My primary responsibilities include developing audio algorithms that incorporate machine learning techniques. In addition, I am in charge the design and optimization of embedded systems and mentor junior engineers.<p>
-      <p>In my free time, I enjoy collecting various audio formats, including synthesizers, CDs, tapes, and vinyl, as well as headphones, speakers, and vacuum tube amplifiers. On weekends, I teach music technology to high school students, covering topics such as Max/MSP, Pure Data, and VCV Rack. My passion for audio and technology goes beyond my professional duties; I am constantly exploring innovative ways to push the boundaries of sound.</p>
-    </div>
-  </section>
-</div>
+  </main>
+
+  <footer>
+    <p>© <span id="current-year"></span> <span data-site-name>Kwei-Wen Tseng</span></p>
+    <p>Made with curiosity &amp; sound.</p>
+  </footer>
+  </div>
+
+  <script type="module" src="index.js?v=6"></script>
+</body>
 </html>
