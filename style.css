@@ -14,6 +14,38 @@
   font-display: swap;
 }
 
+@font-face {
+  font-family: "Josefin Sans";
+  src: url("font/Josefin_Sans/JosefinSans-VariableFont_wght.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 100 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Roboto Mono";
+  src: url("font/Roboto_Mono/RobotoMono-VariableFont_wght.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 100 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "IBM Plex Sans Thai Looped";
+  src: url("font/IBM_Plex_Sans_Thai_Looped/IBMPlexSansThaiLooped-Regular.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "IBM Plex Sans Thai Looped";
+  src: url("font/IBM_Plex_Sans_Thai_Looped/IBMPlexSansThaiLooped-Medium.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+}
+
 :root {
   color-scheme: light;
   --bg: #fff;
@@ -136,9 +168,9 @@ button {
   align-items: center;
   justify-self: start;
   gap: 8px;
-  font-family: "Noto Sans", sans-serif;
+  font-family: "IBM Plex Sans Thai Looped", Arial, sans-serif;
   font-size: 16px;
-  font-weight: 700;
+  font-weight: 500;
   letter-spacing: -.02em;
 }
 
@@ -311,11 +343,11 @@ p {
 
 h1 {
   margin-bottom: 0;
-  font-family: "Montserrat", sans-serif;
+  font-family: "IBM Plex Sans Thai Looped", Arial, sans-serif;
   font-weight: 500;
   font-size: 30px;
   line-height: 1.33;
-  letter-spacing: -.025em;
+  letter-spacing: .04em;
 }
 
 .role {
@@ -324,7 +356,7 @@ h1 {
 }
 
 .content-section {
-  padding: 22px 0;
+  padding: 30px 0;
 }
 
 .content-section h2 {
@@ -339,6 +371,12 @@ h1 {
 
 .section-copy {
   margin-bottom: 16px;
+  color: var(--muted);
+  font-family: "Roboto Mono", monospace;
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: normal;
+  line-height: 1.6;
   text-align: justify;
   text-indent: 1em;
 }
@@ -347,7 +385,7 @@ h1 {
   display: grid;
   justify-items: start;
   gap: 4px;
-  font-family: "Montserrat", sans-serif;
+  font-family: "Roboto Mono", monospace;
 }
 
 .document-links a {
@@ -357,7 +395,8 @@ h1 {
   min-height: 36px;
   padding: 5px 16px;
   border-radius: 6px;
-  font-weight: 500;
+  font-size: 14px;
+  font-weight: 400;
 }
 
 .document-links a:hover {
@@ -386,30 +425,43 @@ h1 {
 
 .bio-list {
   display: grid;
-  gap: 2px;
+  gap: 12px;
+  width: 100%;
 }
 
 .bio-item {
   display: grid;
   grid-template-columns: 118px 1fr;
+  align-items: start;
   gap: 0;
+  width: 100%;
 }
 
 .bio-item time {
-  font-family: "Montserrat", sans-serif;
-  font-weight: 500;
+  padding-left: 16px;
+  font-family: "Roboto Mono", monospace;
+  font-size: 14px;
+  font-weight: 400;
   white-space: nowrap;
 }
 
 .bio-item p {
+  width: 100%;
   margin: 0;
+  color: var(--muted);
+  font-family: "Roboto Mono", monospace;
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: normal;
+  line-height: 1.6;
+  text-align: justify;
 }
 
 .affiliate-links {
   display: grid;
   justify-items: start;
   gap: 4px;
-  font-family: "Montserrat", sans-serif;
+  font-family: "Roboto Mono", monospace;
 }
 
 .affiliate-links a {
@@ -420,7 +472,8 @@ h1 {
   padding: 5px 16px;
   border-radius: 6px;
   color: var(--ink);
-  font-weight: 500;
+  font-size: 14px;
+  font-weight: 400;
 }
 
 .affiliate-links a:hover {
@@ -578,7 +631,7 @@ footer p {
   }
 
   h1 {
-    font-size: 28px;
+    font-size: 24px;
   }
 
   .role {
@@ -587,10 +640,14 @@ footer p {
   }
 
   .content-section {
-    padding: 20px 0;
+    padding: 26px 0;
   }
 
   .section-copy {
+    text-align: left;
+  }
+
+  .bio-item p {
     text-align: left;
   }
 }
