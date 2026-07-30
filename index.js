@@ -11,6 +11,7 @@ const themeToggle = document.querySelector(".theme-toggle");
 const menuToggle = document.querySelector(".menu-toggle");
 const menu = document.querySelector(".nav-links");
 const themeMeta = document.querySelector('meta[name="theme-color"]');
+const identityCopy = document.querySelector(".identity-copy");
 
 let liquidGlassInstance;
 let headerIsScrolled = false;
@@ -77,6 +78,12 @@ function handleScroll() {
   });
 }
 
+function refreshLiquidGlass() {
+  window.requestAnimationFrame(() => {
+    liquidGlassInstance?.markChanged();
+  });
+}
+
 function syncThemeUI(theme) {
   const isDark = theme === "dark";
   const toggleLabel = isDark ? "Switch to light theme" : "Switch to dark theme";
@@ -134,6 +141,16 @@ menu.querySelectorAll("a").forEach((link) => {
     menuToggle.setAttribute("aria-expanded", "false");
     menuToggle.setAttribute("aria-label", "Open navigation menu");
   });
+});
+
+identityCopy?.addEventListener("pointerenter", () => {
+  refreshLiquidGlass();
+  window.setTimeout(refreshLiquidGlass, 260);
+});
+
+identityCopy?.addEventListener("pointerleave", () => {
+  refreshLiquidGlass();
+  window.setTimeout(refreshLiquidGlass, 180);
 });
 
 window.addEventListener("resize", () => {
