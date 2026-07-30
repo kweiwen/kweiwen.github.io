@@ -1,6 +1,7 @@
 const root = document.documentElement;
 const glassRoot = document.querySelector("#glass-root");
 const header = document.querySelector(".site-header");
+const contentRoot = document.querySelector("main");
 const themeToggle = document.querySelector(".theme-toggle");
 const menuToggle = document.querySelector(".menu-toggle");
 const menu = document.querySelector(".nav-links");
@@ -11,6 +12,11 @@ const profileAvatar = document.querySelector("[data-profile-avatar]");
 let liquidGlassInstance;
 let headerIsScrolled = false;
 let scrollFrame = 0;
+let scrollSettleTimer = 0;
+let scrollLateTimer = 0;
+let liquidRefreshNonce = 0;
+let liquidGlassInitToken = 0;
+let liquidGlassInitPromise;
 
 const GLASS_CONFIG = {
   blurAmount: 0.25,
@@ -31,10 +37,10 @@ const GLASS_CONFIG = {
 
 document.querySelector("#current-year").textContent = new Date().getFullYear();
 
-function updateHeaderGlass() {
+function updateHeaderGlass(forceRefresh = false) {
   const isScrolled = window.scrollY > 8;
 
-  if (isScrolled === headerIsScrolled && header.dataset.config) {
+  if (!forceRefresh && isScrolled === headerIsScrolled && header.dataset.config) {
     return;
   }
 
@@ -44,14 +50,19 @@ function updateHeaderGlass() {
     ...GLASS_CONFIG,
     opacity: isScrolled ? 1 : 0.02,
     edgeHighlight: isScrolled ? GLASS_CONFIG.edgeHighlight : 0,
-    shadowOpacity: isScrolled ? 0.3 : 0
+    shadowOpacity: isScrolled ? 0.3 : 0,
+    refreshNonce: forceRefresh ? liquidRefreshNonce += 1 : liquidRefreshNonce
   });
 }
 
 function handleScroll() {
-  updateHeaderGlass();
+  updateHeaderGlass(true);
 
   if (scrollFrame) {
+    window.clearTimeout(scrollSettleTimer);
+    window.clearTimeout(scrollLateTimer);
+    scrollSettleTimer = window.setTimeout(refreshLiquidGlass, 90);
+    scrollLateTimer = window.setTimeout(refreshLiquidGlass, 240);
     return;
   }
 
@@ -59,28 +70,16 @@ function handleScroll() {
     liquidGlassInstance?.markChanged();
     scrollFrame = 0;
   });
+  window.clearTimeout(scrollSettleTimer);
+  window.clearTimeout(scrollLateTimer);
+  scrollSettleTimer = window.setTimeout(refreshLiquidGlass, 90);
+  scrollLateTimer = window.setTimeout(refreshLiquidGlass, 240);
 }
 
 function refreshLiquidGlass() {
   window.requestAnimationFrame(() => {
-    liquidGlassInstance?.markChanged();
+    liquidGlassInstance?.markChanged(contentRoot || undefined);
   });
-}
-
-function loadProfileAvatar() {
-  if (!profileAvatar || profileAvatar.src) {
-    return;
-  }
-
-  profileAvatar.src = profileAvatar.dataset.src;
-}
-
-function unloadProfileAvatar() {
-  if (!profileAvatar) {
-    return;
-  }
-
-  profileAvatar.removeAttribute("src");
 }
 
 function refreshLiquidGlassAfterAvatarLoad() {
@@ -106,10 +105,10 @@ function setTheme(theme) {
   root.dataset.theme = theme;
   localStorage.setItem("theme", theme);
   syncThemeUI(theme);
-  liquidGlassInstance?.markChanged();
+  reinitializeLiquidGlass();
 }
 
-async function initLiquidGlass() {
+async function initLiquidGlass(token = ++liquidGlassInitToken) {
   if (!window.WebGLRenderingContext) {
     root.classList.add("liquid-glass-fallback");
     return;
@@ -120,23 +119,36 @@ async function initLiquidGlass() {
     const { LiquidGlass } = await import("https://cdn.jsdelivr.net/npm/@ybouane/liquidglass@1.0.3/dist/index.js");
 
     updateHeaderGlass();
-    liquidGlassInstance = await LiquidGlass.init({
+    const nextInstance = await LiquidGlass.init({
       root: glassRoot,
       glassElements: [header]
     });
+    if (token !== liquidGlassInitToken) {
+      nextInstance.destroy();
+      return;
+    }
+    liquidGlassInstance = nextInstance;
     root.classList.add("liquid-glass-ready");
+    refreshLiquidGlass();
   } catch {
-    root.classList.add("liquid-glass-fallback");
+    if (token === liquidGlassInitToken) {
+      root.classList.add("liquid-glass-fallback");
+    }
   }
+}
+
+function reinitializeLiquidGlass() {
+  const token = ++liquidGlassInitToken;
+  liquidGlassInstance?.destroy();
+  liquidGlassInstance = undefined;
+  root.classList.remove("liquid-glass-ready", "liquid-glass-fallback");
+  updateHeaderGlass(true);
+  liquidGlassInitPromise = initLiquidGlass(token);
 }
 
 syncThemeUI(root.dataset.theme);
 updateHeaderGlass();
-initLiquidGlass();
-
-if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
-  loadProfileAvatar();
-}
+liquidGlassInitPromise = initLiquidGlass();
 
 themeToggle.addEventListener("click", () => {
   setTheme(root.dataset.theme === "dark" ? "light" : "dark");
@@ -158,17 +170,13 @@ menu.querySelectorAll("a").forEach((link) => {
 });
 
 identityCopy?.addEventListener("pointerenter", () => {
-  loadProfileAvatar();
   refreshLiquidGlassAfterAvatarLoad();
   window.setTimeout(refreshLiquidGlass, 260);
 });
 
 identityCopy?.addEventListener("pointerleave", () => {
   refreshLiquidGlass();
-  window.setTimeout(() => {
-    unloadProfileAvatar();
-    refreshLiquidGlass();
-  }, 180);
+  window.setTimeout(refreshLiquidGlass, 180);
 });
 
 window.addEventListener("resize", () => {
@@ -182,8 +190,11 @@ window.addEventListener("resize", () => {
 window.addEventListener("scroll", handleScroll, { passive: true });
 
 window.addEventListener("pagehide", () => {
+  liquidGlassInitToken += 1;
   if (scrollFrame) {
     window.cancelAnimationFrame(scrollFrame);
   }
+  window.clearTimeout(scrollSettleTimer);
+  window.clearTimeout(scrollLateTimer);
   liquidGlassInstance?.destroy();
 }, { once: true });
