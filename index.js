@@ -6,6 +6,7 @@ const menuToggle = document.querySelector(".menu-toggle");
 const menu = document.querySelector(".nav-links");
 const themeMeta = document.querySelector('meta[name="theme-color"]');
 const identityCopy = document.querySelector(".identity-copy");
+const profileAvatar = document.querySelector("[data-profile-avatar]");
 
 let liquidGlassInstance;
 let headerIsScrolled = false;
@@ -66,6 +67,33 @@ function refreshLiquidGlass() {
   });
 }
 
+function loadProfileAvatar() {
+  if (!profileAvatar || profileAvatar.src) {
+    return;
+  }
+
+  profileAvatar.src = profileAvatar.dataset.src;
+}
+
+function unloadProfileAvatar() {
+  if (!profileAvatar) {
+    return;
+  }
+
+  profileAvatar.removeAttribute("src");
+}
+
+function refreshLiquidGlassAfterAvatarLoad() {
+  if (!profileAvatar?.src) {
+    refreshLiquidGlass();
+    return;
+  }
+
+  profileAvatar.decode()
+    .catch(() => {})
+    .finally(refreshLiquidGlass);
+}
+
 function syncThemeUI(theme) {
   const isDark = theme === "dark";
   const toggleLabel = isDark ? "Switch to light theme" : "Switch to dark theme";
@@ -106,6 +134,10 @@ syncThemeUI(root.dataset.theme);
 updateHeaderGlass();
 initLiquidGlass();
 
+if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
+  loadProfileAvatar();
+}
+
 themeToggle.addEventListener("click", () => {
   setTheme(root.dataset.theme === "dark" ? "light" : "dark");
 });
@@ -126,13 +158,17 @@ menu.querySelectorAll("a").forEach((link) => {
 });
 
 identityCopy?.addEventListener("pointerenter", () => {
-  refreshLiquidGlass();
+  loadProfileAvatar();
+  refreshLiquidGlassAfterAvatarLoad();
   window.setTimeout(refreshLiquidGlass, 260);
 });
 
 identityCopy?.addEventListener("pointerleave", () => {
   refreshLiquidGlass();
-  window.setTimeout(refreshLiquidGlass, 180);
+  window.setTimeout(() => {
+    unloadProfileAvatar();
+    refreshLiquidGlass();
+  }, 180);
 });
 
 window.addEventListener("resize", () => {

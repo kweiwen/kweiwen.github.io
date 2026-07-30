@@ -312,25 +312,24 @@ button {
 }
 
 .profile-avatar {
+  display: block;
   flex: 0 0 auto;
   width: 88px;
   height: 88px;
   overflow: hidden;
   border: 2px solid var(--line);
   border-radius: 50%;
-  background-image: url("resources/photo/profile.png");
-  background-position: 50% 38%;
-  background-size: 145%;
-  background-repeat: no-repeat;
-  mask-image: radial-gradient(circle closest-side, #000 98%, transparent 100%);
-  -webkit-mask-image: radial-gradient(circle closest-side, #000 98%, transparent 100%);
+  object-fit: cover;
+}
+
+.profile-avatar:not([src]) {
+  visibility: hidden;
 }
 
 @media (hover: hover) and (pointer: fine) {
   .profile-avatar {
     visibility: hidden;
     opacity: 0;
-    background-image: none;
     clip-path: circle(0 at 50% 50%);
     -webkit-clip-path: circle(0 at 50% 50%);
     transition:
@@ -343,7 +342,6 @@ button {
   .identity-copy:hover + .profile-avatar {
     visibility: visible;
     opacity: 1;
-    background-image: url("resources/photo/profile.png");
     clip-path: circle(50% at 50% 50%);
     -webkit-clip-path: circle(50% at 50% 50%);
     transition:
