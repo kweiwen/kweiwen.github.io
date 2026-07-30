@@ -188,7 +188,7 @@ button {
 .nav-links a::after {
   position: absolute;
   right: 0;
-  bottom: 1px;
+  bottom: 3px;
   left: 0;
   height: 1px;
   background: var(--heading-line);
@@ -202,7 +202,7 @@ button {
 
 .nav-links a:hover::after,
 .nav-links a:focus-visible::after {
-  height: 2px;
+  height: 3px;
   transform: scaleX(1);
   transition-delay: 0s, .24s;
 }
@@ -396,7 +396,7 @@ h1::after {
 }
 
 h1:hover::after {
-  height: 2px;
+  height: 3px;
   transform: scaleX(1);
   transition-delay: 0s, .24s;
 }
@@ -423,7 +423,7 @@ h1:hover::after {
 .content-section h2::after {
   position: absolute;
   right: 0;
-  bottom: 0;
+  bottom: -3px;
   left: 0;
   height: 1px;
   background: var(--heading-line);
@@ -436,7 +436,7 @@ h1:hover::after {
 }
 
 .content-section h2:hover::after {
-  height: 2px;
+  height: 3px;
   transform: scaleX(1);
   transition-delay: 0s, .24s;
 }
@@ -503,9 +503,9 @@ h1:hover::after {
 
 .bio-item {
   display: grid;
-  grid-template-columns: 118px 1fr;
+  grid-template-columns: max-content 1fr;
   align-items: start;
-  gap: 0;
+  column-gap: 16px;
   width: 100%;
 }
 
@@ -728,10 +728,6 @@ footer p {
   .brand {
     max-width: 170px;
     font-size: 15px;
-  }
-
-  .bio-item {
-    grid-template-columns: 92px 1fr;
   }
 
   footer {
