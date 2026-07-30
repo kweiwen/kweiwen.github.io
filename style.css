@@ -194,15 +194,29 @@ button {
 }
 
 .nav-links a {
+  position: relative;
   padding: 4px 0;
   font-size: 15px;
   font-weight: 500;
   color: var(--ink);
 }
 
-.nav-links a:hover {
-  text-decoration: underline;
-  text-underline-offset: 4px;
+.nav-links a::after {
+  position: absolute;
+  right: 0;
+  bottom: 1px;
+  left: 0;
+  height: 1px;
+  background: var(--heading-line);
+  content: "";
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform .24s ease;
+}
+
+.nav-links a:hover::after,
+.nav-links a:focus-visible::after {
+  transform: scaleX(1);
 }
 
 .nav-actions {
@@ -326,6 +340,32 @@ button {
   transform-origin: 50% 38%;
 }
 
+@media (hover: hover) and (pointer: fine) {
+  .profile-avatar {
+    visibility: hidden;
+    opacity: 0;
+    clip-path: circle(0 at 50% 50%);
+    -webkit-clip-path: circle(0 at 50% 50%);
+    transition:
+      visibility 0s linear .16s,
+      opacity .16s ease,
+      clip-path .16s ease,
+      -webkit-clip-path .16s ease;
+  }
+
+  .identity-copy:hover + .profile-avatar {
+    visibility: visible;
+    opacity: 1;
+    clip-path: circle(50% at 50% 50%);
+    -webkit-clip-path: circle(50% at 50% 50%);
+    transition:
+      visibility 0s linear .24s,
+      opacity .18s ease .24s,
+      clip-path .18s ease .24s,
+      -webkit-clip-path .18s ease .24s;
+  }
+}
+
 .eyebrow {
   margin: 0 0 8px;
   color: var(--muted);
@@ -342,12 +382,31 @@ p {
 }
 
 h1 {
+  position: relative;
+  width: fit-content;
   margin-bottom: 0;
   font-family: "IBM Plex Sans Thai Looped", Arial, sans-serif;
   font-weight: 500;
   font-size: 30px;
   line-height: 1.33;
   letter-spacing: .04em;
+}
+
+h1::after {
+  position: absolute;
+  right: 0;
+  bottom: -4px;
+  left: 0;
+  height: 1px;
+  background: var(--heading-line);
+  content: "";
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform .24s ease;
+}
+
+h1:hover::after {
+  transform: scaleX(1);
 }
 
 .role {
