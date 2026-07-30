@@ -354,15 +354,6 @@ button {
   }
 }
 
-.eyebrow {
-  margin: 0 0 8px;
-  color: var(--muted);
-  font-family: "Montserrat", sans-serif;
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: .1em;
-}
-
 h1,
 h2,
 p {
@@ -399,11 +390,6 @@ h1:hover::after {
   height: 3px;
   transform: scaleX(1);
   transition-delay: 0s, .24s;
-}
-
-.role {
-  margin: 0;
-  color: var(--muted);
 }
 
 .content-section {
@@ -704,11 +690,6 @@ footer p {
 
   h1 {
     font-size: 24px;
-  }
-
-  .role {
-    font-size: 14px;
-    line-height: 1.5;
   }
 
   .content-section {

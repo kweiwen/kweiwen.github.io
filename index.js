@@ -1,9 +1,3 @@
-// Change these three values when you want to customize the site's identity.
-const SITE_CONFIG = {
-  name: "KWEIWEN TSENG",
-  title: "KWEIWEN TSENG",
-};
-
 const root = document.documentElement;
 const glassRoot = document.querySelector("#glass-root");
 const header = document.querySelector(".site-header");
@@ -34,18 +28,6 @@ const GLASS_CONFIG = {
   shadowOffsetY: 1
 };
 
-document.querySelectorAll("[data-site-name]").forEach((element) => {
-  element.textContent = SITE_CONFIG.name;
-});
-const heroTitle = document.querySelector("[data-hero-title]");
-const heroSubtitle = document.querySelector("[data-hero-subtitle]");
-
-if (heroTitle) {
-  heroTitle.textContent = SITE_CONFIG.title;
-}
-if (heroSubtitle) {
-  heroSubtitle.textContent = SITE_CONFIG.subtitle;
-}
 document.querySelector("#current-year").textContent = new Date().getFullYear();
 
 function updateHeaderGlass() {
