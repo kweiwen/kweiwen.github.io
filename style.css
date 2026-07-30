@@ -457,8 +457,34 @@ h1:hover::after {
   font-weight: 400;
 }
 
-.document-links a:hover {
-  background: rgba(128, 128, 128, .12);
+.document-links a span,
+.affiliate-links a span {
+  position: relative;
+}
+
+.document-links a span::after,
+.affiliate-links a span::after {
+  position: absolute;
+  right: 0;
+  bottom: -3px;
+  left: 0;
+  height: 1px;
+  background: var(--heading-line);
+  content: "";
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition:
+    transform .24s ease,
+    height .12s ease;
+}
+
+.document-links a:hover span::after,
+.document-links a:focus-visible span::after,
+.affiliate-links a:hover span::after,
+.affiliate-links a:focus-visible span::after {
+  height: 3px;
+  transform: scaleX(1);
+  transition-delay: 0s, .24s;
 }
 
 .document-icon {
@@ -532,10 +558,6 @@ h1:hover::after {
   color: var(--ink);
   font-size: 14px;
   font-weight: 400;
-}
-
-.affiliate-links a:hover {
-  background: rgba(128, 128, 128, .12);
 }
 
 .social-icon {
