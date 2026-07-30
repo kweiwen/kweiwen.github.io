@@ -131,6 +131,25 @@ button {
   -webkit-backdrop-filter: blur(22px) saturate(150%);
 }
 
+.mobile-menu-glass {
+  display: none;
+  position: fixed;
+  z-index: 19;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  pointer-events: none;
+}
+
+.mobile-menu-glass.is-open {
+  display: block;
+}
+
+.liquid-glass-ready .nav-links.is-open {
+  border-color: transparent;
+  background: transparent;
+  box-shadow: none;
+}
+
 .nav-shell {
   display: grid;
   grid-template-columns: 1fr auto 1fr;

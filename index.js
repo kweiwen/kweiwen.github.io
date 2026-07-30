@@ -1,6 +1,7 @@
 const root = document.documentElement;
 const glassRoot = document.querySelector("#glass-root");
 const header = document.querySelector(".site-header");
+const mobileMenuGlass = document.querySelector(".mobile-menu-glass");
 const contentRoot = document.querySelector("main");
 const themeToggle = document.querySelector(".theme-toggle");
 const menuToggle = document.querySelector(".menu-toggle");
@@ -34,6 +35,18 @@ const GLASS_CONFIG = {
   shadowSpread: 10,
   shadowOffsetY: 1
 };
+
+const MENU_GLASS_CONFIG = {
+  ...GLASS_CONFIG,
+  cornerRadius: 8,
+  zRadius: 8,
+  opacity: 1,
+  shadowOpacity: 0.24
+};
+
+if (mobileMenuGlass) {
+  mobileMenuGlass.dataset.config = JSON.stringify(MENU_GLASS_CONFIG);
+}
 
 document.querySelector("#current-year").textContent = new Date().getFullYear();
 
@@ -82,6 +95,28 @@ function refreshLiquidGlass() {
   });
 }
 
+function syncMobileMenuGlass() {
+  if (!mobileMenuGlass || !menu.classList.contains("is-open")) {
+    mobileMenuGlass?.classList.remove("is-open");
+    return;
+  }
+
+  const rect = menu.getBoundingClientRect();
+  mobileMenuGlass.classList.add("is-open");
+  mobileMenuGlass.style.left = `${rect.left}px`;
+  mobileMenuGlass.style.top = `${rect.top}px`;
+  mobileMenuGlass.style.width = `${rect.width}px`;
+  mobileMenuGlass.style.height = `${rect.height}px`;
+}
+
+function refreshMobileMenuGlass() {
+  syncMobileMenuGlass();
+  window.requestAnimationFrame(() => {
+    liquidGlassInstance?.markChanged();
+    window.setTimeout(() => liquidGlassInstance?.markChanged(), 80);
+  });
+}
+
 function refreshLiquidGlassAfterAvatarLoad() {
   if (!profileAvatar?.src) {
     refreshLiquidGlass();
@@ -121,7 +156,7 @@ async function initLiquidGlass(token = ++liquidGlassInitToken) {
     updateHeaderGlass();
     const nextInstance = await LiquidGlass.init({
       root: glassRoot,
-      glassElements: [header]
+      glassElements: [header, mobileMenuGlass].filter(Boolean)
     });
     if (token !== liquidGlassInitToken) {
       nextInstance.destroy();
@@ -129,6 +164,7 @@ async function initLiquidGlass(token = ++liquidGlassInitToken) {
     }
     liquidGlassInstance = nextInstance;
     root.classList.add("liquid-glass-ready");
+    syncMobileMenuGlass();
     refreshLiquidGlass();
   } catch {
     if (token === liquidGlassInitToken) {
@@ -159,6 +195,7 @@ menuToggle.addEventListener("click", () => {
   menuToggle.setAttribute("aria-expanded", String(!isOpen));
   menuToggle.setAttribute("aria-label", isOpen ? "Open navigation menu" : "Close navigation menu");
   menu.classList.toggle("is-open", !isOpen);
+  refreshMobileMenuGlass();
 });
 
 menu.querySelectorAll("a").forEach((link) => {
@@ -166,6 +203,7 @@ menu.querySelectorAll("a").forEach((link) => {
     menu.classList.remove("is-open");
     menuToggle.setAttribute("aria-expanded", "false");
     menuToggle.setAttribute("aria-label", "Open navigation menu");
+    refreshMobileMenuGlass();
   });
 });
 
@@ -184,6 +222,7 @@ window.addEventListener("resize", () => {
     menu.classList.remove("is-open");
     menuToggle.setAttribute("aria-expanded", "false");
   }
+  refreshMobileMenuGlass();
   liquidGlassInstance?.markChanged();
 });
 
