@@ -7,14 +7,6 @@
 }
 
 @font-face {
-  font-family: "Noto Sans";
-  src: url("resources/font/Noto_Sans/NotoSans-VariableFont_wdth,wght.ttf") format("truetype");
-  font-style: normal;
-  font-weight: 100 900;
-  font-display: swap;
-}
-
-@font-face {
   font-family: "Roboto Mono";
   src: url("resources/font/Roboto_Mono/RobotoMono-VariableFont_wght.ttf") format("truetype");
   font-style: normal;
@@ -74,7 +66,7 @@ body {
   margin: 0;
   background: var(--bg);
   color: var(--ink);
-  font-family: "Noto Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   font-size: 16px;
   line-height: 1.6;
   transition: background-color .2s ease, color .2s ease;
@@ -618,6 +610,7 @@ footer {
   margin: 32px auto 0;
   padding: 24px 0 40px;
   color: var(--muted);
+  font-family: "Roboto Mono", monospace;
   font-size: 13px;
 }
 
