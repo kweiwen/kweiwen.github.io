@@ -3,6 +3,8 @@ const glassRoot = document.querySelector("#glass-root");
 const siteHeader = document.querySelector(".site-header");
 const mobileMenuGlass = document.querySelector(".mobile-menu-glass");
 const mainContent = document.querySelector("main");
+const coverImageFrame = document.querySelector(".cover-image-frame");
+const coverImage = document.querySelector(".cover-image");
 const themeToggle = document.querySelector(".theme-toggle");
 const menuToggle = document.querySelector(".menu-toggle");
 const navigationMenu = document.querySelector(".nav-links");
@@ -90,6 +92,31 @@ function refreshLiquidGlass() {
   window.requestAnimationFrame(() => {
     liquidGlassInstance?.markChanged(mainContent || undefined);
   });
+}
+
+function revealCoverImage() {
+  if (!coverImageFrame || !coverImage) {
+    return;
+  }
+
+  coverImageFrame.classList.add("is-loaded");
+  refreshLiquidGlass();
+  window.setTimeout(refreshLiquidGlass, 260);
+}
+
+function decodeCoverImage() {
+  if (!coverImage) {
+    return;
+  }
+
+  if (typeof coverImage.decode !== "function") {
+    revealCoverImage();
+    return;
+  }
+
+  coverImage.decode()
+    .catch(() => {})
+    .finally(revealCoverImage);
 }
 
 function syncMobileMenuGlass() {
@@ -182,6 +209,12 @@ function reinitializeLiquidGlass() {
 syncThemeUI(documentRoot.dataset.theme);
 updateHeaderGlass();
 void initLiquidGlass();
+
+if (coverImage?.complete && coverImage.naturalWidth > 0) {
+  decodeCoverImage();
+} else {
+  coverImage?.addEventListener("load", decodeCoverImage, { once: true });
+}
 
 themeToggle.addEventListener("click", () => {
   setTheme(documentRoot.dataset.theme === "dark" ? "light" : "dark");
