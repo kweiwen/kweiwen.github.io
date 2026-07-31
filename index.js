@@ -19,6 +19,9 @@ let scrollSettleTimeoutId = 0;
 let scrollLateTimeoutId = 0;
 let glassRefreshNonce = 0;
 let glassInitToken = 0;
+let liquidGlassState = "idle";
+
+const LIQUID_GLASS_INIT_TIMEOUT_MS = 3000;
 
 const BASE_GLASS_CONFIG = {
   blurAmount: 0.5,
@@ -104,19 +107,30 @@ function revealCoverImage() {
   window.setTimeout(refreshLiquidGlass, 260);
 }
 
-function decodeCoverImage() {
-  if (!coverImage) {
-    return;
+function waitForNextPaint() {
+  return new Promise((resolve) => {
+    window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(resolve);
+    });
+  });
+}
+
+async function prepareCoverImage() {
+  if (coverImage && !coverImage.complete) {
+    await new Promise((resolve) => {
+      coverImage.addEventListener("load", resolve, { once: true });
+      coverImage.addEventListener("error", resolve, { once: true });
+    });
   }
 
-  if (typeof coverImage.decode !== "function") {
+  if (coverImage?.naturalWidth > 0) {
+    if (typeof coverImage.decode === "function") {
+      await coverImage.decode().catch(() => {});
+    }
     revealCoverImage();
-    return;
   }
 
-  coverImage.decode()
-    .catch(() => {})
-    .finally(revealCoverImage);
+  await waitForNextPaint();
 }
 
 function syncMobileMenuGlass() {
@@ -168,39 +182,80 @@ function setTheme(theme) {
 }
 
 async function initLiquidGlass(initToken = ++glassInitToken) {
-  if (!window.WebGLRenderingContext) {
-    documentRoot.classList.add("liquid-glass-fallback");
+  if (liquidGlassState !== "idle") {
     return;
   }
 
-  try {
-    await document.fonts.ready;
-    const { LiquidGlass } = await import("https://cdn.jsdelivr.net/npm/@ybouane/liquidglass@1.0.3/dist/index.js");
+  liquidGlassState = "initializing";
 
-    updateHeaderGlass();
-    const nextGlassInstance = await LiquidGlass.init({
-      root: glassRoot,
-      glassElements: [siteHeader, mobileMenuGlass].filter(Boolean)
+  if (!window.WebGLRenderingContext) {
+    useLiquidGlassFallback();
+    return;
+  }
+
+  let timeoutId = 0;
+
+  try {
+    const pendingInit = (async () => {
+      await document.fonts.ready;
+      const { LiquidGlass } = await import("https://cdn.jsdelivr.net/npm/@ybouane/liquidglass@1.0.3/dist/index.js");
+
+      updateHeaderGlass();
+      return LiquidGlass.init({
+        root: glassRoot,
+        glassElements: [siteHeader, mobileMenuGlass].filter(Boolean)
+      });
+    })();
+
+    pendingInit.then((instance) => {
+      if (initToken !== glassInitToken || liquidGlassState !== "initializing") {
+        instance.destroy();
+      }
+    }).catch(() => {});
+
+    const timeout = new Promise((_, reject) => {
+      timeoutId = window.setTimeout(reject, LIQUID_GLASS_INIT_TIMEOUT_MS);
     });
-    if (initToken !== glassInitToken) {
+    const nextGlassInstance = await Promise.race([pendingInit, timeout]);
+
+    if (initToken !== glassInitToken || liquidGlassState !== "initializing") {
       nextGlassInstance.destroy();
       return;
     }
+
     liquidGlassInstance = nextGlassInstance;
+    liquidGlassState = "ready";
+    documentRoot.classList.remove("liquid-glass-fallback");
     documentRoot.classList.add("liquid-glass-ready");
     syncMobileMenuGlass();
     refreshLiquidGlass();
   } catch {
     if (initToken === glassInitToken) {
-      documentRoot.classList.add("liquid-glass-fallback");
+      glassInitToken += 1;
+      useLiquidGlassFallback();
     }
+  } finally {
+    window.clearTimeout(timeoutId);
   }
 }
 
+function useLiquidGlassFallback() {
+  liquidGlassInstance?.destroy();
+  liquidGlassInstance = undefined;
+  liquidGlassState = "fallback";
+  documentRoot.classList.remove("liquid-glass-ready");
+  documentRoot.classList.add("liquid-glass-fallback");
+}
+
 function reinitializeLiquidGlass() {
+  if (liquidGlassState !== "ready") {
+    return;
+  }
+
   const initToken = ++glassInitToken;
   liquidGlassInstance?.destroy();
   liquidGlassInstance = undefined;
+  liquidGlassState = "idle";
   documentRoot.classList.remove("liquid-glass-ready", "liquid-glass-fallback");
   updateHeaderGlass(true);
   void initLiquidGlass(initToken);
@@ -208,13 +263,7 @@ function reinitializeLiquidGlass() {
 
 syncThemeUI(documentRoot.dataset.theme);
 updateHeaderGlass();
-void initLiquidGlass();
-
-if (coverImage?.complete && coverImage.naturalWidth > 0) {
-  decodeCoverImage();
-} else {
-  coverImage?.addEventListener("load", decodeCoverImage, { once: true });
-}
+void prepareCoverImage().then(initLiquidGlass);
 
 themeToggle.addEventListener("click", () => {
   setTheme(documentRoot.dataset.theme === "dark" ? "light" : "dark");
@@ -265,5 +314,5 @@ window.addEventListener("pagehide", () => {
   }
   window.clearTimeout(scrollSettleTimeoutId);
   window.clearTimeout(scrollLateTimeoutId);
-  liquidGlassInstance?.destroy();
+  useLiquidGlassFallback();
 }, { once: true });
