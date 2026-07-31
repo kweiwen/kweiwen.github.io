@@ -271,8 +271,10 @@ themeToggle.addEventListener("click", () => {
 
 menuToggle.addEventListener("click", () => {
   const isOpen = menuToggle.getAttribute("aria-expanded") === "true";
+  const menuLabel = isOpen ? "Open navigation menu" : "Close navigation menu";
   menuToggle.setAttribute("aria-expanded", String(!isOpen));
-  menuToggle.setAttribute("aria-label", isOpen ? "Open navigation menu" : "Close navigation menu");
+  menuToggle.setAttribute("aria-label", menuLabel);
+  menuToggle.setAttribute("title", menuLabel);
   navigationMenu.classList.toggle("is-open", !isOpen);
   refreshMobileMenuGlass();
 });
@@ -282,6 +284,7 @@ navigationMenu.querySelectorAll("a").forEach((link) => {
     navigationMenu.classList.remove("is-open");
     menuToggle.setAttribute("aria-expanded", "false");
     menuToggle.setAttribute("aria-label", "Open navigation menu");
+    menuToggle.setAttribute("title", "Open navigation menu");
     refreshMobileMenuGlass();
   });
 });
@@ -300,6 +303,8 @@ window.addEventListener("resize", () => {
   if (window.innerWidth > 720) {
     navigationMenu.classList.remove("is-open");
     menuToggle.setAttribute("aria-expanded", "false");
+    menuToggle.setAttribute("aria-label", "Open navigation menu");
+    menuToggle.setAttribute("title", "Open navigation menu");
   }
   refreshMobileMenuGlass();
   liquidGlassInstance?.markChanged();
