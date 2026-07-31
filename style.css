@@ -527,7 +527,7 @@ h1:hover::after {
   display: grid;
   grid-template-columns: max-content 1fr;
   align-items: start;
-  column-gap: 16px;
+  column-gap: 20px;
   width: 100%;
 }
 
@@ -638,7 +638,7 @@ footer p {
 
   .nav-links {
     position: absolute;
-    top: 56px;
+    top: calc(56px + 8px);
     right: 16px;
     display: none;
     gap: 2px;
