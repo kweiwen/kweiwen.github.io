@@ -330,10 +330,6 @@ button {
   object-fit: cover;
 }
 
-.profile-avatar:not([src]) {
-  visibility: hidden;
-}
-
 @media (hover: hover) and (pointer: fine) {
   .profile-avatar {
     visibility: hidden;
@@ -419,10 +415,6 @@ h1:hover::after {
   transform: scaleX(1);
   transform-origin: left center;
   transition: transform .24s ease;
-}
-
-.content-section h2:hover::after {
-  transform: scaleX(1);
 }
 
 .section-copy {
