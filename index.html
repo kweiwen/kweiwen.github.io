@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="KWEIWEN TSENG — DSP engineer, audio technologist and educator.">
-  <meta name="theme-color" content="#f3f1ea">
+  <meta name="theme-color" content="#202023">
   <title>kweiwen</title>
   <link rel="icon" href="resources/favicon/favicon.ico">
   <link rel="icon" type="image/svg+xml" href="resources/favicon/favicon.svg">
@@ -15,8 +15,8 @@
   <script>
     (function () {
       const stored = localStorage.getItem("theme");
-      const preferred = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-      document.documentElement.dataset.theme = stored || preferred;
+      const defaultTheme = "dark";
+      document.documentElement.dataset.theme = stored || defaultTheme;
     }());
   </script>
 </head>
