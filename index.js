@@ -20,10 +20,10 @@ let liquidGlassInitToken = 0;
 let liquidGlassInitPromise;
 
 const GLASS_CONFIG = {
-  blurAmount: 0.25,
+  blurAmount: 0.5,
   refraction: 1.25,
-  chromAberration: 0.05,
-  edgeHighlight: 0.05,
+  chromAberration: 0.25,
+  edgeHighlight: 0.25,
   specular: 0,
   fresnel: 1,
   distortion: 0,
