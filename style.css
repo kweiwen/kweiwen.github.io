@@ -241,6 +241,15 @@ button {
   color: #fff;
 }
 
+.translate-icon {
+  display: block;
+  width: 18px;
+  height: 18px;
+  background: currentColor;
+  mask: url("resources/icons/translate.svg") center / contain no-repeat;
+  -webkit-mask: url("resources/icons/translate.svg") center / contain no-repeat;
+}
+
 .theme-icon {
   display: block;
   width: 18px;
