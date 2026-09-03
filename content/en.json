@@ -1,0 +1,56 @@
+{
+  "htmlLang": "en",
+  "meta": {
+    "title": "kweiwen"
+  },
+  "site": {
+    "name": "KWEIWEN TSENG",
+    "avatarAlt": "Portrait of KWEIWEN TSENG"
+  },
+  "nav": {
+    "about": "About",
+    "bio": "Bio",
+    "portfolio": "Portfolio",
+    "links": "Links",
+    "menuOpen": "Open navigation menu",
+    "menuClose": "Close navigation menu"
+  },
+  "theme": {
+    "toDark": "Switch to dark theme",
+    "toLight": "Switch to light theme"
+  },
+  "translate": "Switch to Chinese",
+  "about": {
+    "heading": "About",
+    "body": "I derive the math, read the papers to train the networks, design the circuit boards, write the frameworks, and build the GUIs to tune them. I've lived on factory floors, sleeping on the ground next to operators and fixtures to resolve production issues. From earbuds to EVs, I've worked on everything with an audio I/O, and I still haven't found a problem that couldn't be solved with more MLP or more op-amps."
+  },
+  "bio": {
+    "heading": "Bio",
+    "items": [
+      { "date": "1991-Sep", "text": "Born and raised in Kaohsiung, Taiwan." },
+      { "date": "2009-Sep", "text": "Began my bachelor’s studies at National Sun Yat-sen University (NSYSU)." },
+      { "date": "2013-Sep", "text": "Began my master’s studies at National Chiao Tung University (NCTU)." },
+      { "date": "2016-Aug", "text": "Began my substitute military service." },
+      { "date": "2017-Oct", "text": "Joined Positive Grid as a junior electrical engineer." },
+      { "date": "2018-Sep", "text": "Joined Tymphany as an electrical engineer, and left as a DSP engineer." },
+      { "date": "2021-Jan", "text": "Joined Lava Music as a senior DSP engineer." },
+      { "date": "2021-Dec", "text": "Joined Li Auto as a senior DSP engineer." },
+      { "date": "2023-Jul", "text": "Got married, the luckiest man on the earth." },
+      { "date": "2024-Aug", "text": "Joined Waves Audio as a senior DSP engineer." },
+      { "date": "2025-Oct", "text": "Welcomed my beautiful daughter into the world." }
+    ]
+  },
+  "portfolio": {
+    "heading": "Portfolio",
+    "resume": "Resume (Shorter)",
+    "resumeAria": "Open Resume PDF",
+    "cv": "Curriculum Vitae (Longer)",
+    "cvAria": "Open Curriculum Vitae PDF"
+  },
+  "links": {
+    "heading": "Links"
+  },
+  "footer": {
+    "tagline": "Made with curiosity & sound."
+  }
+}
