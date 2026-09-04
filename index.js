@@ -1,3 +1,5 @@
+import { initI18n, t, toggleLanguage } from "./i18n.js?v=1";
+
 const documentRoot = document.documentElement;
 const glassRoot = document.querySelector("#glass-root");
 const siteHeader = document.querySelector(".site-header");
@@ -6,6 +8,7 @@ const mainContent = document.querySelector("main");
 const coverImageFrame = document.querySelector(".cover-image-frame");
 const coverImage = document.querySelector(".cover-image");
 const themeToggle = document.querySelector(".theme-toggle");
+const translateToggle = document.querySelector(".translate-toggle");
 const menuToggle = document.querySelector(".menu-toggle");
 const navigationMenu = document.querySelector(".nav-links");
 const themeColorMeta = document.querySelector('meta[name="theme-color"]');
@@ -166,12 +169,25 @@ function refreshGlassAfterAvatarReveal() {
     .finally(refreshLiquidGlass);
 }
 
+function setButtonLabel(button, label) {
+  if (!label) {
+    return;
+  }
+
+  button.setAttribute("aria-label", label);
+  button.setAttribute("title", label);
+}
+
 function syncThemeUI(theme) {
   const isDark = theme === "dark";
-  const toggleLabel = isDark ? "Switch to light theme" : "Switch to dark theme";
   themeColorMeta.setAttribute("content", isDark ? "#202023" : "#ffffff");
-  themeToggle.setAttribute("aria-label", toggleLabel);
-  themeToggle.setAttribute("title", toggleLabel);
+  setButtonLabel(themeToggle, t(isDark ? "theme.toLight" : "theme.toDark"));
+}
+
+function syncMenuUI(isOpen) {
+  menuToggle.setAttribute("aria-expanded", String(isOpen));
+  setButtonLabel(menuToggle, t(isOpen ? "nav.menuClose" : "nav.menuOpen"));
+  navigationMenu.classList.toggle("is-open", isOpen);
 }
 
 function setTheme(theme) {
@@ -263,28 +279,31 @@ function reinitializeLiquidGlass() {
 
 syncThemeUI(documentRoot.dataset.theme);
 updateHeaderGlass();
+void initI18n(() => {
+  syncThemeUI(documentRoot.dataset.theme);
+  syncMenuUI(navigationMenu.classList.contains("is-open"));
+  refreshMobileMenuGlass();
+  refreshLiquidGlass();
+  window.setTimeout(refreshLiquidGlass, 260);
+});
 void prepareCoverImage().then(initLiquidGlass);
 
 themeToggle.addEventListener("click", () => {
   setTheme(documentRoot.dataset.theme === "dark" ? "light" : "dark");
 });
 
+translateToggle.addEventListener("click", () => {
+  void toggleLanguage();
+});
+
 menuToggle.addEventListener("click", () => {
-  const isOpen = menuToggle.getAttribute("aria-expanded") === "true";
-  const menuLabel = isOpen ? "Open navigation menu" : "Close navigation menu";
-  menuToggle.setAttribute("aria-expanded", String(!isOpen));
-  menuToggle.setAttribute("aria-label", menuLabel);
-  menuToggle.setAttribute("title", menuLabel);
-  navigationMenu.classList.toggle("is-open", !isOpen);
+  syncMenuUI(menuToggle.getAttribute("aria-expanded") !== "true");
   refreshMobileMenuGlass();
 });
 
 navigationMenu.querySelectorAll("a").forEach((link) => {
   link.addEventListener("click", () => {
-    navigationMenu.classList.remove("is-open");
-    menuToggle.setAttribute("aria-expanded", "false");
-    menuToggle.setAttribute("aria-label", "Open navigation menu");
-    menuToggle.setAttribute("title", "Open navigation menu");
+    syncMenuUI(false);
     refreshMobileMenuGlass();
   });
 });
@@ -301,10 +320,7 @@ identityContent?.addEventListener("pointerleave", () => {
 
 window.addEventListener("resize", () => {
   if (window.innerWidth > 720) {
-    navigationMenu.classList.remove("is-open");
-    menuToggle.setAttribute("aria-expanded", "false");
-    menuToggle.setAttribute("aria-label", "Open navigation menu");
-    menuToggle.setAttribute("title", "Open navigation menu");
+    syncMenuUI(false);
   }
   refreshMobileMenuGlass();
   liquidGlassInstance?.markChanged();

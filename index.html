@@ -3,20 +3,30 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="KWEIWEN TSENG — DSP engineer, audio technologist and educator.">
   <meta name="theme-color" content="#202023">
-  <title>kweiwen</title>
+  <title data-i18n="meta.title">kweiwen</title>
   <link rel="icon" href="resources/favicon/favicon.ico">
   <link rel="icon" type="image/svg+xml" href="resources/favicon/favicon.svg">
   <link rel="apple-touch-icon" href="resources/favicon/apple-touch-icon.png">
   <link rel="manifest" href="resources/favicon/site.webmanifest">
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-  <link rel="stylesheet" href="style.css?v=89">
+  <link rel="stylesheet" href="style.css?v=90">
   <script>
     (function () {
-      const stored = localStorage.getItem("theme");
-      const defaultTheme = "dark";
-      document.documentElement.dataset.theme = stored || defaultTheme;
+      const root = document.documentElement;
+      const storedTheme = localStorage.getItem("theme");
+      root.dataset.theme = storedTheme || "dark";
+
+      const storedLanguage = localStorage.getItem("lang");
+      const detected = navigator.language?.toLowerCase().startsWith("zh") ? "zh" : "en";
+      const language = ["en", "zh"].includes(storedLanguage) ? storedLanguage : detected;
+      root.dataset.lang = language;
+
+      // The markup below is authored in English, so only a non-English visit
+      // has to wait for content/<lang>.json before the text is readable.
+      if (language !== "en") {
+        root.dataset.i18nPending = "";
+      }
     }());
   </script>
 </head>
@@ -25,16 +35,16 @@
   <div class="page-background" aria-hidden="true"></div>
   <header class="site-header">
     <nav class="nav-shell" aria-label="Primary navigation">
-      <a class="brand" href="#top" aria-label="Back to home">
+      <a class="brand" href="#top">
         <img class="brand-logo" src="resources/favicon/favicon.svg" alt="" width="24" height="32">
-        <span>KWEIWEN TSENG</span>
+        <span data-i18n="site.name">KWEIWEN TSENG</span>
       </a>
 
       <div class="nav-links" id="site-menu">
-        <a href="#about">About</a>
-        <a href="#bio">Bio</a>
-        <a href="#portfolio">Portfolio</a>
-        <a href="#links">Links</a>
+        <a href="#about" data-i18n="nav.about">About</a>
+        <a href="#bio" data-i18n="nav.bio">Bio</a>
+        <a href="#portfolio" data-i18n="nav.portfolio">Portfolio</a>
+        <a href="#links" data-i18n="nav.links">Links</a>
       </div>
 
       <div class="nav-actions">
@@ -47,7 +57,7 @@
             <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"></path>
           </svg>
         </button>
-        <button class="icon-button translate-toggle" type="button" aria-label="Translate page" title="Translate page">
+        <button class="icon-button translate-toggle" type="button" data-i18n-attr="aria-label:translate;title:translate" aria-label="Switch to Chinese" title="Switch to Chinese">
           <span class="translate-icon" aria-hidden="true"></span>
         </button>
         <button class="icon-button menu-toggle" type="button" aria-expanded="false" aria-controls="site-menu" aria-label="Open navigation menu" title="Open navigation menu">
@@ -65,24 +75,24 @@
       <section class="hero" aria-labelledby="hero-title">
         <div class="cover-image-frame">
           <img class="cover-image-placeholder" src="resources/photo/cover-96x64-mosaic.png" alt="" width="96" height="64" aria-hidden="true">
-          <img class="cover-image" src="resources/photo/cover.png" alt="KWEIWEN TSENG" width="1350" height="900" fetchpriority="high" decoding="async">
+          <img class="cover-image" src="resources/photo/cover.png" alt="" width="1350" height="900" fetchpriority="high" decoding="async">
         </div>
         <div class="identity">
           <div class="identity-copy">
-            <h1 id="hero-title">KWEIWEN TSENG</h1>
+            <h1 id="hero-title" data-i18n="site.name">KWEIWEN TSENG</h1>
           </div>
-          <img class="profile-avatar" data-profile-avatar src="resources/photo/profile-mask.png?v=2" alt="Portrait of KWEIWEN TSENG" width="88" height="88">
+          <img class="profile-avatar" data-profile-avatar src="resources/photo/profile-mask.png?v=2" data-i18n-attr="alt:site.avatarAlt" alt="Portrait of KWEIWEN TSENG" width="88" height="88">
         </div>
       </section>
 
       <section class="content-section" id="about">
-        <h2>About</h2>
-        <p class="section-copy">I derive the math, read the papers to train the networks, design the circuit boards, write the frameworks, and build the GUIs to tune them. I've lived on factory floors, sleeping on the ground next to operators and fixtures to resolve production issues. From earbuds to EVs, I've worked on everything with an audio I/O, and I still haven't found a problem that couldn't be solved with more MLP or more op-amps. </p>
+        <h2 data-i18n="about.heading">About</h2>
+        <p class="section-copy" data-i18n="about.body">I derive the math, read the papers to train the networks, design the circuit boards, write the frameworks, and build the GUIs to tune them. I've lived on factory floors, sleeping on the ground next to operators and fixtures to resolve production issues. From earbuds to EVs, I've worked on everything with an audio I/O, and I still haven't found a problem that couldn't be solved with more MLP or more op-amps. </p>
       </section>
 
       <section class="content-section" id="bio">
-        <h2>Bio</h2>
-        <div class="bio-list">
+        <h2 data-i18n="bio.heading">Bio</h2>
+        <div class="bio-list" data-i18n-list="bio.items">
           <div class="bio-item">
             <time>1991-Sep</time>
             <p>Born and raised in Kaohsiung, Taiwan.</p>
@@ -131,21 +141,21 @@
       </section>
 
       <section class="content-section" id="portfolio">
-        <h2>Portfolio</h2>
+        <h2 data-i18n="portfolio.heading">Portfolio</h2>
         <div class="document-links">
-          <a href="resources/portfolio/kweiwen2026resume.pdf" target="_blank" rel="noreferrer" aria-label="Open Resume PDF">
+          <a href="resources/portfolio/kweiwen2026resume.pdf" target="_blank" rel="noreferrer" data-i18n-attr="aria-label:portfolio.resumeAria" aria-label="Open Resume PDF">
             <i class="document-icon resume-icon" aria-hidden="true"></i>
-            <span>Resume (Shorter)</span>
+            <span data-i18n="portfolio.resume">Resume (Shorter)</span>
           </a>
-          <a href="resources/portfolio/kweiwen2026cv.pdf" target="_blank" rel="noreferrer" aria-label="Open Curriculum Vitae PDF">
+          <a href="resources/portfolio/kweiwen2026cv.pdf" target="_blank" rel="noreferrer" data-i18n-attr="aria-label:portfolio.cvAria" aria-label="Open Curriculum Vitae PDF">
             <i class="document-icon cv-icon" aria-hidden="true"></i>
-            <span>Curriculum Vitae (Longer)</span>
+            <span data-i18n="portfolio.cv">Curriculum Vitae (Longer)</span>
           </a>
         </div>
       </section>
 
       <section class="content-section" id="links">
-        <h2>Links</h2>
+        <h2 data-i18n="links.heading">Links</h2>
         <div class="affiliate-links">
           <a href="https://github.com/kweiwen" target="_blank" rel="noreferrer">
             <i class="social-icon github-icon" aria-hidden="true"></i>
@@ -169,11 +179,11 @@
   </main>
 
   <footer>
-    <p>© <span id="current-year"></span> KWEIWEN TSENG</p>
-    <p>Made with curiosity &amp; sound.</p>
+    <p>© <span id="current-year"></span> <span data-i18n="site.name">KWEIWEN TSENG</span></p>
+    <p data-i18n="footer.tagline">Made with curiosity &amp; sound.</p>
   </footer>
   </div>
 
-  <script type="module" src="index.js?v=17"></script>
+  <script type="module" src="index.js?v=18"></script>
 </body>
 </html>

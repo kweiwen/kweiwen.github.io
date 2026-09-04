@@ -61,6 +61,12 @@ html {
   scroll-padding-top: 72px;
 }
 
+/* The markup ships English; hide it until content/<lang>.json lands. */
+[data-i18n-pending] [data-i18n],
+[data-i18n-pending] [data-i18n-list] {
+  visibility: hidden;
+}
+
 body {
   min-width: 320px;
   margin: 0;
